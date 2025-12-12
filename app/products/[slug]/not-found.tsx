@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 
 export default function ProductNotFound() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center space-y-6">
+        <div className="flex justify-center mb-4">
+          <Logo variant="black" size="lg" href="/" />
+        </div>
         <div className="flex justify-center">
           <div className="bg-red-100 rounded-full p-6">
             <AlertCircle className="w-16 h-16 text-red-600" />

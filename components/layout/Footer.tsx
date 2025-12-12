@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 
 export function Footer() {
   const navigation = {
@@ -35,12 +36,7 @@ export function Footer() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Brand section */}
           <div className="space-y-8">
-            <div>
-              <span className="text-3xl font-heading text-gradient-emerald">
-                PUXX
-              </span>
-              <span className="ml-2 text-lg text-cream">Ireland</span>
-            </div>
+            <Logo variant="white" size="lg" className="h-12 w-auto" />
             <p className="text-sm leading-6 text-cream/80">
               Premium nicotine pouches delivered across Ireland. Experience the world's best pouches with 14 unique flavors.
             </p>

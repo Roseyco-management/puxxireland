@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ShoppingCart, Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/Logo';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,12 +20,7 @@ export function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8">
         {/* Logo */}
         <div className="flex lg:flex-1">
-          <Link href="/" className="-m-1.5 p-1.5">
-            <span className="text-2xl font-heading text-gradient-emerald">
-              PUXX
-            </span>
-            <span className="ml-2 text-sm text-muted-foreground">Ireland</span>
-          </Link>
+          <Logo variant="white" size="md" priority className="h-10 w-auto" />
         </div>
 
         {/* Mobile menu button */}

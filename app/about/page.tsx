@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Shield, Zap, Heart, CheckCircle, Truck, Lock, Award } from 'lucide-react';
 import { PageHeader } from '@/components/static-pages/page-header';
 import { Breadcrumbs } from '@/components/static-pages/breadcrumbs';
@@ -164,20 +165,69 @@ export default function AboutPage() {
           <h2 className="text-3xl font-heading text-foreground text-center mb-12">
             Why Choose PUXX?
           </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {whyPuxx.map((item, index) => (
-              <div key={index} className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <item.icon className="h-5 w-5 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-lg font-heading text-foreground mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Visual - Why PUXX Image */}
+            <div className="relative order-2 lg:order-1">
+              <div className="relative aspect-[3/4] w-full max-w-md mx-auto">
+                <Image
+                  src="/images/marketing/puxx-why.png"
+                  alt="Why Choose PUXX - Premium Tobacco-Free Nicotine Pouches"
+                  fill
+                  className="object-contain rounded-lg"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
+                />
               </div>
-            ))}
+            </div>
+
+            {/* Benefits List */}
+            <div className="order-1 lg:order-2">
+              <div className="space-y-6">
+                {whyPuxx.map((item, index) => (
+                  <div key={index} className="flex gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <item.icon className="h-5 w-5 text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-heading text-foreground mb-2">{item.title}</h3>
+                      <p className="text-muted-foreground">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Worldwide Quality Section */}
+        <section className="mb-16">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-emerald p-12 md:p-16">
+            <div className="relative z-10 text-center text-white">
+              <div className="max-w-4xl mx-auto">
+                <div className="relative aspect-[16/9] w-full max-w-3xl mx-auto mb-8">
+                  <Image
+                    src="/images/marketing/BLACK-POUCHES-WORLDWIDE.png"
+                    alt="PUXX Premium Nicotine Pouches - Trusted Worldwide"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1000px"
+                  />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-heading mb-4">
+                  Premium Quality Trusted Worldwide
+                </h2>
+                <p className="text-xl text-white/90 mb-2">
+                  Now Available in Ireland
+                </p>
+                <p className="text-lg text-white/80 max-w-2xl mx-auto">
+                  Join thousands of satisfied customers who trust PUXX for their nicotine needs
+                </p>
+              </div>
+            </div>
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
           </div>
         </section>
 
