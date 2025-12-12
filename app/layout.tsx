@@ -3,62 +3,13 @@ import type { Metadata, Viewport } from 'next';
 import { Montserrat, Inter } from 'next/font/google';
 import { getUser, getTeamForUser } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
+import { ToastProvider } from '@/lib/utils/toast';
+import { baseMetadata } from '@/lib/seo/metadata';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { MetaPixel } from '@/components/analytics/MetaPixel';
+import { MicrosoftClarity } from '@/components/analytics/MicrosoftClarity';
 
-export const metadata: Metadata = {
-  title: 'PUXX Ireland - Premium Nicotine Pouches',
-  description: 'Experience the world\'s best nicotine pouches. 14 flavors, fast delivery across Ireland. Fresh, tobacco-free pouches delivered to your door.',
-  metadataBase: new URL('https://puxxnicotine.ie'),
-  applicationName: 'PUXX Ireland',
-  keywords: ['nicotine pouches', 'PUXX', 'Ireland', 'tobacco-free', 'nicotine', 'pouches', 'premium'],
-  authors: [{ name: 'PUXX Ireland' }],
-  creator: 'PUXX Ireland',
-  publisher: 'PUXX Ireland',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  icons: {
-    icon: [
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/favicon-512x512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    shortcut: ['/favicon.ico'],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
-  },
-  manifest: '/site.webmanifest',
-  openGraph: {
-    type: 'website',
-    locale: 'en_IE',
-    url: 'https://puxxnicotine.ie',
-    siteName: 'PUXX Ireland',
-    title: 'PUXX Ireland - Premium Nicotine Pouches',
-    description: 'Experience the world\'s best nicotine pouches. 14 flavors, fast delivery across Ireland.',
-    images: [
-      {
-        url: '/images/logo/PUXX-LOGO-LONG-WHITE.png',
-        width: 1200,
-        height: 630,
-        alt: 'PUXX Ireland - Premium Nicotine Pouches',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'PUXX Ireland - Premium Nicotine Pouches',
-    description: 'Experience the world\'s best nicotine pouches. 14 flavors, fast delivery across Ireland.',
-    images: ['/images/logo/PUXX-LOGO-LONG-WHITE.png'],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'PUXX Ireland',
-  },
-};
+export const metadata: Metadata = baseMetadata;
 
 export const viewport: Viewport = {
   maximumScale: 1
@@ -84,22 +35,32 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang="en-IE"
       className={`${montserrat.variable} ${inter.variable}`}
     >
+      <head>
+        {/* Google Analytics 4 */}
+        <GoogleAnalytics />
+        {/* Meta (Facebook) Pixel */}
+        <MetaPixel />
+        {/* Microsoft Clarity */}
+        <MicrosoftClarity />
+      </head>
       <body className="min-h-[100dvh] bg-background font-sans antialiased">
-        <SWRConfig
-          value={{
-            fallback: {
-              // We do NOT await here
-              // Only components that read this data will suspend
-              '/api/user': getUser(),
-              '/api/team': getTeamForUser()
-            }
-          }}
-        >
-          {children}
-        </SWRConfig>
+        <ToastProvider>
+          <SWRConfig
+            value={{
+              fallback: {
+                // We do NOT await here
+                // Only components that read this data will suspend
+                '/api/user': getUser(),
+                '/api/team': getTeamForUser()
+              }
+            }}
+          >
+            {children}
+          </SWRConfig>
+        </ToastProvider>
       </body>
     </html>
   );

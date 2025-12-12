@@ -112,6 +112,7 @@ export function ProductImage({
         height={dimensions.height}
         priority={priority}
         quality={85}
+        loading={priority ? undefined : 'lazy'}
         onError={handleError}
         onLoad={handleLoad}
         className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}

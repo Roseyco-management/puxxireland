@@ -158,7 +158,9 @@ export const products = pgTable('products', {
   sku: varchar('sku', { length: 50 }).unique(),
   nicotineStrength: varchar('nicotine_strength', { length: 20 }),
   flavor: varchar('flavor', { length: 100 }),
+  flavorProfile: text('flavor_profile').array(),
   pouchesPerCan: integer('pouches_per_can'),
+  reorderPoint: integer('reorder_point').default(10),
   ingredients: text('ingredients'),
   usageInstructions: text('usage_instructions'),
   imageUrl: text('image_url'),
@@ -302,6 +304,7 @@ export const newsletterSubscribers = pgTable('newsletter_subscribers', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 100 }),
+  source: varchar('source', { length: 50 }).default('footer'), // footer, checkout, popup, import
   isActive: boolean('is_active').notNull().default(true),
   subscribedAt: timestamp('subscribed_at').notNull().defaultNow(),
   unsubscribedAt: timestamp('unsubscribed_at'),
@@ -330,6 +333,22 @@ export const addresses = pgTable('addresses', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 }, (table) => ({
   userIdx: index('addresses_user_id_idx').on(table.userId),
+}));
+
+// Customer notes (admin notes about customers)
+export const customerNotes = pgTable('customer_notes', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  note: text('note').notNull(),
+  createdBy: integer('created_by')
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  userIdx: index('customer_notes_user_id_idx').on(table.userId),
 }));
 
 // ===========================
@@ -413,6 +432,17 @@ export const addressesRelations = relations(addresses, ({ one }) => ({
   }),
 }));
 
+export const customerNotesRelations = relations(customerNotes, ({ one }) => ({
+  user: one(users, {
+    fields: [customerNotes.userId],
+    references: [users.id],
+  }),
+  createdByUser: one(users, {
+    fields: [customerNotes.createdBy],
+    references: [users.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
@@ -452,6 +482,8 @@ export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type NewNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
 export type Address = typeof addresses.$inferSelect;
 export type NewAddress = typeof addresses.$inferInsert;
+export type CustomerNote = typeof customerNotes.$inferSelect;
+export type NewCustomerNote = typeof customerNotes.$inferInsert;
 
 export enum ActivityType {
   SIGN_UP = 'SIGN_UP',

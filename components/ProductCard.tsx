@@ -2,8 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Check } from 'lucide-react';
+import { useCartStore } from '@/lib/store/cart-store';
+import { toCartProduct } from '@/lib/store/cart-types';
+import { useToast } from '@/lib/utils/toast';
 
 interface Product {
   id: number;
@@ -16,6 +20,7 @@ interface Product {
   flavor: string | null;
   imageUrl: string | null;
   stockQuantity: number;
+  sku: string | null;
 }
 
 interface ProductCardProps {
@@ -23,8 +28,39 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
+  const { showToast } = useToast();
+
   const price = parseFloat(product.price);
   const isInStock = product.stockQuantity > 0;
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isInStock || isAdding) return;
+
+    setIsAdding(true);
+
+    try {
+      const cartProduct = toCartProduct(product);
+      addItem(cartProduct, 1);
+
+      setShowSuccess(true);
+      showToast(`${product.name} added to cart!`, 'success');
+
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showToast(error instanceof Error ? error.message : 'Failed to add item to cart', 'error');
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   return (
     <div className="group relative bg-card rounded-xl border border-border overflow-hidden hover-lift transition-all duration-300">
@@ -34,10 +70,12 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
-              alt={product.name}
+              alt={`${product.name} nicotine pouches ${product.nicotineStrength || ''} - ${product.flavor || 'premium flavor'}`}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+              loading="lazy"
+              quality={85}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-emerald">
@@ -96,16 +134,26 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Add to Cart Button */}
       <div className="px-4 pb-4">
         <Button
-          className="w-full gradient-emerald hover:opacity-90"
-          disabled={!isInStock}
-          onClick={(e) => {
-            e.preventDefault();
-            // TODO: Add to cart functionality
-            console.log('Add to cart:', product.id);
-          }}
+          className="w-full gradient-emerald hover:opacity-90 transition-all"
+          disabled={!isInStock || isAdding}
+          onClick={handleAddToCart}
         >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          {isInStock ? 'Add to Cart' : 'Out of Stock'}
+          {isAdding ? (
+            <>
+              <div className="mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Adding...
+            </>
+          ) : showSuccess ? (
+            <>
+              <Check className="mr-2 h-4 w-4" />
+              Added!
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              {isInStock ? 'Add to Cart' : 'Out of Stock'}
+            </>
+          )}
         </Button>
       </div>
     </div>

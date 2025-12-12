@@ -39,10 +39,12 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
-              alt={product.name}
+              alt={`${product.name} nicotine pouches ${product.nicotineStrength || ''} - ${product.flavor || 'premium flavor'}`}
               fill
               className="object-cover transition-transform group-hover:scale-105"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              loading="lazy"
+              quality={85}
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-gray-200">

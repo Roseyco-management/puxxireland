@@ -56,7 +56,7 @@ export default async function HomePage() {
         <div className="absolute inset-0">
           <Image
             src="/images/hero/hero-banner.jpg"
-            alt="PUXX Premium Nicotine Pouches - Fresh Fruit Flavors"
+            alt="PUXX Premium Nicotine Pouches Ireland - Tobacco-Free Fresh Fruit Flavors Collection"
             fill
             priority
             className="object-cover object-center"
@@ -169,10 +169,12 @@ export default async function HomePage() {
               <div className="relative aspect-[3/4] max-w-md mx-auto">
                 <Image
                   src="/images/marketing/puxx-why.png"
-                  alt="Why Choose PUXX - Premium Tobacco-Free Nicotine Pouches"
+                  alt="PUXX nicotine pouches collection - 14 premium tobacco-free flavors with fast Ireland delivery"
                   fill
                   className="object-contain"
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  loading="lazy"
+                  quality={85}
                 />
               </div>
             </div>
@@ -244,10 +246,12 @@ export default async function HomePage() {
           <div className="relative w-full aspect-[16/5] lg:aspect-[21/5] overflow-hidden">
             <Image
               src="/images/marketing/puxxbanner.jpg"
-              alt="PUXX Premium Nicotine Pouches Banner"
+              alt="PUXX Ireland nicotine pouches banner - Premium quality tobacco-free products"
               fill
               className="object-cover object-center"
               sizes="100vw"
+              loading="lazy"
+              quality={85}
             />
           </div>
         </div>
@@ -262,16 +266,18 @@ export default async function HomePage() {
                 <div className="relative aspect-[16/9] w-full max-w-3xl mx-auto mb-8">
                   <Image
                     src="/images/marketing/BLACK-POUCHES-WORLDWIDE.png"
-                    alt="PUXX Premium Nicotine Pouches - Trusted Worldwide"
+                    alt="PUXX nicotine pouches worldwide distribution - Premium quality trusted internationally, now in Ireland"
                     fill
                     className="object-contain drop-shadow-2xl"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1000px"
+                    loading="lazy"
+                    quality={85}
                   />
                 </div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading mb-4">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading mb-4 text-gradient-emerald">
                   Premium Quality Trusted Worldwide
                 </h2>
-                <p className="text-xl text-white/90 mb-2">
+                <p className="text-xl text-gradient-emerald mb-2 font-semibold">
                   Now Available in Ireland
                 </p>
                 <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">

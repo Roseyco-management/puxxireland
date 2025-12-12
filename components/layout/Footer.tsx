@@ -17,6 +17,7 @@ export function Footer() {
     ],
     company: [
       { name: 'About Us', href: '/about' },
+      { name: 'Blog', href: '/blog' },
       { name: 'Terms & Conditions', href: '/terms' },
       { name: 'Privacy Policy', href: '/privacy' },
     ],

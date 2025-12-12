@@ -1,6 +1,6 @@
-# PUXX Ireland - Documentation
+# PUXX Ireland Documentation
 
-This folder contains all planning and brand documentation for the PUXX Ireland e-commerce project.
+Complete documentation for the PUXX Ireland e-commerce website. For a full index, see [**INDEX.md**](INDEX.md).
 
 ---
 
@@ -162,42 +162,126 @@ This folder contains all planning and brand documentation for the PUXX Ireland e
 
 ---
 
+### 🔧 `/setup/` - Setup & Configuration
+
+- **ANALYTICS-COMPLETE-SETUP.md** ⭐ - All analytics platforms (GA4, Meta Pixel, Clarity)
+- **GA4-IMPLEMENTATION-COMPLETE.md** - Complete Google Analytics 4 setup
+- **GA4-IMPLEMENTATION-SUMMARY.md** - GA4 quick reference
+- **GOOGLE-ANALYTICS-*.md** - GA4 guides and examples
+- **META-PIXEL-SETUP.md** - Facebook Pixel & Conversions API
+- **SUPABASE-SETUP-GUIDE.md** - Database configuration
+- **SUPABASE-STORAGE-SETUP.md** - File storage setup
+- **INSTALLATION_GUIDE.md** - Initial project setup
+- **OAUTH_SETUP.md** - OAuth authentication
+- **WEEK1-DAY5-PRODUCT-SEEDING.md** - Database seeding
+
+---
+
+### 🔍 `/seo/` - SEO Documentation
+
+- **SEO-MONITORING-CHECKLIST.md** ⭐ - Complete monitoring guide (weekly/monthly/quarterly tasks)
+- **SEO-IMPLEMENTATION.md** - SEO implementation details
+- **SEO-Product-Schema-Implementation.md** - Product structured data
+- **SEO_LIBRARY_README.md** - SEO helper functions
+- **GOOGLE-SEARCH-CONSOLE-SETUP.md** - GSC configuration
+- **RANK-TRACKING-SETUP.md** - SERPBear setup
+
+---
+
+### ✨ `/features/` - Feature Documentation
+
+#### `features/auth/` - Authentication
+- **AUTH_SYSTEM_README.md** - Complete auth documentation
+- **AUTH_QUICK_START.md** - Quick setup guide
+
+#### `features/cart/` - Shopping Cart
+- **INTEGRATION.md** - Cart system integration
+- **CART_COMPONENT_README.md** - Component documentation
+- **CART_COMPONENT_SUMMARY.md** - Quick reference
+
+#### `features/checkout/` - Checkout Flow
+- **CHECKOUT_IMPLEMENTATION.md** - Checkout implementation
+
+#### `features/account/` - User Account
+- **ACCOUNT_DASHBOARD_README.md** - User dashboard
+
+#### `features/store/` - State Management
+- **README.md** - Zustand store documentation
+- **QUICK_START.md** - Quick setup
+- **IMPLEMENTATION_SUMMARY.md** - Implementation details
+- **FILE_STRUCTURE.md** - File organization
+
+---
+
+### 📦 `/assets/` - Asset Management
+
+- **ASSET_AUDIT.md** - Complete audit of all project assets
+- **IMAGE_LIBRARY_README.md** - Image library documentation
+- **IMAGE_LIBRARY_SUMMARY.md** - Quick reference
+- **IMAGE_SYSTEM_DELIVERABLES.md** - Image system implementation
+
+---
+
+### 📝 `/weekly-summaries/` - Development Logs
+
+- **WEEK3_DAY4_SUMMARY.md** - Weekly progress summary
+
+---
+
+### 📄 Root Documentation Files
+
+- **IMAGE_ARCHITECTURE.md** - Image handling architecture
+- **IMAGE_LIBRARY.md** - Complete image library
+- **IMAGE_QUICK_REFERENCE.md** - Quick image usage guide
+- **IMPLEMENTATION_SUMMARY.md** - High-level implementation overview
+- **IMPLEMENTATION-SUMMARY.md** - Alternative implementation summary
+- **WEEK2-DAY5-PRODUCT-DETAIL.md** - Product page implementation
+- **WEEK3-DAY3-CONTACT-PAGE.md** - Contact form
+- **CONTACT_PAGE_SETUP.md** - Contact form setup
+- **CONTACT_PAGE_FILES.md** - Contact file reference
+- **CONTACT_QUICK_START.md** - Contact quick setup
+- **WORLDPAY_INTEGRATION_GUIDE.md** - Payment processing
+- **SEO-IMPLEMENTATION.md** - SEO implementation
+- **SEO-Product-Schema-Implementation.md** - Product schema
+
+---
+
 ## 🎯 How to Use This Documentation
 
 ### For Developers:
-1. Start with **PUXX-Ireland-MASTER-ROADMAP.md** (overview)
-2. Read **PUXX-Ireland-Website-Build-Plan.md** (detailed website specs)
-3. Read **PUXX-Ireland-Dashboard-Build-Plan.md** (admin dashboard specs)
-4. Reference **PUXX-Ireland-Visual-Brand-Guide.md** (design implementation)
-5. Follow the week-by-week tasks
-
-### For Designers:
-1. Read **PUXX-Brand-Overview.md** (understand the brand)
-2. Study **PUXX-Ireland-Visual-Brand-Guide.md** (design system)
-3. Use emerald green (#009A49) as primary color throughout
-4. Follow typography (Montserrat Bold + Inter)
-5. Reference do's and don'ts
-
-### For Content Writers:
-1. Read **PUXX-Brand-Overview.md** (brand voice)
-2. Review **PUXX-Ireland-SEO-Plan.md** (content strategy)
-3. Follow 6-month content calendar
-4. Write 2-3 blog posts per week
-5. Target keywords from keyword research section
+1. Start with [**INSTALLATION_GUIDE.md**](setup/INSTALLATION_GUIDE.md) (initial setup)
+2. Read [**PUXX-Ireland-MASTER-ROADMAP.md**](PUXX-Ireland-MASTER-ROADMAP.md) (overview)
+3. Review [**planning/PUXX-Ireland-Website-Build-Plan.md**](planning/PUXX-Ireland-Website-Build-Plan.md) (detailed specs)
+4. Check [**features/**](features/) for specific feature implementations
+5. Reference [**brand/PUXX-Ireland-Visual-Brand-Guide.md**](brand/PUXX-Ireland-Visual-Brand-Guide.md) (design)
 
 ### For SEO Specialists:
-1. Read **PUXX-Ireland-SEO-Plan.md** (complete SEO strategy)
-2. Set up all SEO tools (next-seo, SERPBear, etc.)
-3. Follow monthly SEO checklist
-4. Build 15-20 backlinks per month
-5. Monitor rankings weekly
+1. Read [**planning/PUXX-Ireland-SEO-Plan.md**](planning/PUXX-Ireland-SEO-Plan.md) (complete strategy)
+2. Follow [**seo/SEO-MONITORING-CHECKLIST.md**](seo/SEO-MONITORING-CHECKLIST.md) ⭐ (daily/weekly/monthly tasks)
+3. Set up [**setup/ANALYTICS-COMPLETE-SETUP.md**](setup/ANALYTICS-COMPLETE-SETUP.md) (GA4, Meta, Clarity)
+4. Use [**seo/RANK-TRACKING-SETUP.md**](seo/RANK-TRACKING-SETUP.md) (SERPBear)
+5. Monitor via [**seo/GOOGLE-SEARCH-CONSOLE-SETUP.md**](seo/GOOGLE-SEARCH-CONSOLE-SETUP.md)
+
+### For Designers:
+1. Read [**brand/PUXX-Brand-Overview.md**](brand/PUXX-Brand-Overview.md) (brand identity)
+2. Study [**brand/PUXX-Ireland-Visual-Brand-Guide.md**](brand/PUXX-Ireland-Visual-Brand-Guide.md) (design system)
+3. Reference [**assets/IMAGE_LIBRARY_README.md**](assets/IMAGE_LIBRARY_README.md) (images)
+4. Use emerald green (#009A49) as primary color
+5. Follow typography (Montserrat Bold + Inter)
+
+### For Content Writers:
+1. Read [**brand/PUXX-Brand-Overview.md**](brand/PUXX-Brand-Overview.md) (brand voice)
+2. Review [**planning/PUXX-Ireland-SEO-Plan.md**](planning/PUXX-Ireland-SEO-Plan.md) (content strategy)
+3. Follow 6-month content calendar (2-4 blog posts per month)
+4. Target keywords from SEO plan keyword research
+5. Use [**seo/SEO-MONITORING-CHECKLIST.md**](seo/SEO-MONITORING-CHECKLIST.md) for tracking
 
 ### For Stakeholders:
-1. Read **PUXX-Ireland-MASTER-ROADMAP.md** (full project overview)
-2. Understand timeline and budget
-3. Review success criteria
+1. Read [**PUXX-Ireland-MASTER-ROADMAP.md**](PUXX-Ireland-MASTER-ROADMAP.md) (full overview)
+2. Review [**INDEX.md**](INDEX.md) (complete documentation index)
+3. Understand timeline, budget, and success criteria
 4. Approve brand guidelines
-5. Prepare content and images
+5. Monitor progress via weekly summaries
 
 ---
 

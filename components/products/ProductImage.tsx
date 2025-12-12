@@ -49,10 +49,11 @@ export function ProductImage({
         >
           <Image
             src={allImages[currentImage]}
-            alt={`${productName} - Image ${currentImage + 1}`}
+            alt={`${productName} nicotine pouches - Premium tobacco-free product view ${currentImage + 1}`}
             fill
             className="object-contain p-8"
             priority={currentImage === 0}
+            quality={85}
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
@@ -100,10 +101,12 @@ export function ProductImage({
             >
               <Image
                 src={img}
-                alt={`${productName} thumbnail ${idx + 1}`}
+                alt={`${productName} nicotine pouches view ${idx + 1}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 25vw, 12vw"
+                loading="lazy"
+                quality={75}
               />
             </button>
           ))}

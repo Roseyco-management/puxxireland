@@ -5,13 +5,18 @@ import { useState } from 'react';
 import { ShoppingCart, Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
+import { CartDrawer } from '@/components/cart/CartDrawer';
+import { useCartStore, cartSelectors } from '@/lib/store/cart-store';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartItemCount = useCartStore(cartSelectors.totalItems);
 
   const navigation = [
     { name: 'Shop', href: '/shop' },
     { name: 'About', href: '/about' },
+    { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
 
@@ -54,17 +59,19 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <Link
-            href="/cart"
+          <button
+            onClick={() => setCartOpen(true)}
             className="relative -m-2 p-2 text-foreground hover:text-primary transition-colors"
           >
             <span className="sr-only">Cart</span>
             <ShoppingCart className="h-6 w-6" aria-hidden="true" />
             {/* Cart count badge */}
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-              0
-            </span>
-          </Link>
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                {cartItemCount > 99 ? '99+' : cartItemCount}
+              </span>
+            )}
+          </button>
 
           <Button asChild variant="ghost" size="sm">
             <Link href="/sign-in">
@@ -95,14 +102,16 @@ export function Header() {
             ))}
 
             <div className="mt-4 space-y-2 border-t border-border pt-4">
-              <Link
-                href="/cart"
-                className="flex items-center rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
-                onClick={() => setMobileMenuOpen(false)}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setCartOpen(true);
+                }}
+                className="flex items-center rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground w-full"
               >
                 <ShoppingCart className="mr-3 h-5 w-5" />
-                Cart (0)
-              </Link>
+                Cart ({cartItemCount})
+              </button>
 
               <Link
                 href="/sign-in"
@@ -120,6 +129,9 @@ export function Header() {
           </div>
         </div>
       )}
+
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </header>
   );
 }

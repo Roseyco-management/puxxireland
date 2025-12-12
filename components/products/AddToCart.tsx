@@ -5,6 +5,10 @@ import { Minus, Plus, ShoppingCart, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductWithCategories } from '@/lib/types/product';
 import { getStockStatus } from '@/lib/types/product';
+import { useCartStore } from '@/lib/store/cart-store';
+import { toCartProduct } from '@/lib/store/cart-types';
+import { useToast } from '@/lib/utils/toast';
+import { trackAddToCart } from '@/lib/analytics/google-analytics';
 
 interface AddToCartProps {
   product: ProductWithCategories;
@@ -14,9 +18,11 @@ export function AddToCart({ product }: AddToCartProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
+  const { showToast } = useToast();
 
   const stockInfo = getStockStatus(product.stockQuantity);
-  const maxQuantity = Math.min(product.stockQuantity, 10);
+  const maxQuantity = Math.min(product.stockQuantity, 100);
   const isOutOfStock = stockInfo.status === 'out_of_stock';
 
   const handleQuantityChange = (delta: number) => {
@@ -29,51 +35,37 @@ export function AddToCart({ product }: AddToCartProps) {
   };
 
   const handleAddToCart = async () => {
+    if (isOutOfStock || isAdding) return;
+
     setIsAdding(true);
 
     try {
-      // Get existing cart from localStorage
-      const existingCart = localStorage.getItem('puxx_cart');
-      const cart = existingCart ? JSON.parse(existingCart) : [];
+      const cartProduct = toCartProduct(product);
+      addItem(cartProduct, quantity);
 
-      // Check if product already in cart
-      const existingItemIndex = cart.findIndex(
-        (item: any) => item.productId === product.id
+      // Track add to cart in Google Analytics
+      trackAddToCart(
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          category: 'Nicotine Pouches',
+          variant: product.nicotineStrength || undefined,
+        },
+        quantity
       );
 
-      if (existingItemIndex > -1) {
-        // Update quantity
-        cart[existingItemIndex].quantity += quantity;
-      } else {
-        // Add new item
-        cart.push({
-          productId: product.id,
-          name: product.name,
-          slug: product.slug,
-          price: product.price,
-          imageUrl: product.imageUrl,
-          quantity: quantity,
-          nicotineStrength: product.nicotineStrength,
-          flavor: product.flavor,
-        });
-      }
-
-      // Save to localStorage
-      localStorage.setItem('puxx_cart', JSON.stringify(cart));
-
-      // Dispatch custom event for cart update
-      window.dispatchEvent(new Event('cartUpdated'));
-
-      // Show success message
       setShowSuccess(true);
+      showToast(`${quantity} x ${product.name} added to cart!`, 'success');
+
       setTimeout(() => {
         setShowSuccess(false);
       }, 3000);
 
-      // Reset quantity
       setQuantity(1);
     } catch (error) {
       console.error('Error adding to cart:', error);
+      showToast(error instanceof Error ? error.message : 'Failed to add item to cart', 'error');
     } finally {
       setIsAdding(false);
     }
