@@ -1,19 +1,30 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Manrope } from 'next/font/google';
+import { Montserrat, Inter } from 'next/font/google';
 import { getUser, getTeamForUser } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
 
 export const metadata: Metadata = {
-  title: 'Next.js SaaS Starter',
-  description: 'Get started quickly with Next.js, Postgres, and Stripe.'
+  title: 'PUXX Ireland - Premium Nicotine Pouches',
+  description: 'Experience the world\'s best nicotine pouches. 14 flavors, fast delivery across Ireland. Fresh, tobacco-free pouches delivered to your door.'
 };
 
 export const viewport: Viewport = {
   maximumScale: 1
 };
 
-const manrope = Manrope({ subsets: ['latin'] });
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['700'],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export default function RootLayout({
   children
@@ -23,9 +34,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
+      className={`${montserrat.variable} ${inter.variable}`}
     >
-      <body className="min-h-[100dvh] bg-gray-50">
+      <body className="min-h-[100dvh] bg-background font-sans antialiased">
         <SWRConfig
           value={{
             fallback: {
