@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ContactForm } from '@/components/contact/contact-form';
-import { Mail, Phone, Clock, MapPin } from 'lucide-react';
+import { Mail, Phone, Clock, MapPin, MessageSquare, Headphones, Users } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Contact PUXX Ireland - Get in Touch',
@@ -11,174 +11,258 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-green-600 to-green-700 text-white">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact PUXX Ireland</h1>
-            <p className="text-lg md:text-xl text-green-50">
-              Have a question or need assistance? We're here to help. Send us a message and
-              we'll get back to you as soon as possible.
-            </p>
-          </div>
-        </div>
-      </div>
+    <main className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-primary via-green-600 to-green-700">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {/* Contact Form - Left Side (2/3 width on desktop) */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Send us a Message</h2>
-              <p className="text-gray-600 mb-6">
-                Fill out the form below and we'll respond within 24 hours.
-              </p>
-              <ContactForm />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-heading tracking-tight text-white leading-[1.1] mb-6">
+              Get in <span className="font-black">Touch</span>
+            </h1>
+            <p className="mt-6 text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium">
+              Have questions? We're here to help you find the perfect nicotine pouches
+            </p>
+            <div className="mt-8 flex items-center justify-center gap-8 text-white/90">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                <span className="text-sm sm:text-base">24hr Response</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                <span className="text-sm sm:text-base">Expert Support</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                <span className="text-sm sm:text-base">Ireland-Based</span>
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Contact Information Sidebar - Right Side (1/3 width on desktop) */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Contact Details Card */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Contact Information</h3>
-              <div className="space-y-4">
-                {/* Email */}
-                <div className="flex items-start gap-3">
-                  <div className="bg-green-100 rounded-lg p-2 flex-shrink-0">
-                    <Mail className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Email</p>
-                    <a
-                      href="mailto:hello@puxxnicotine.ie"
-                      className="text-sm text-green-600 hover:text-green-700 hover:underline"
-                    >
-                      hello@puxxnicotine.ie
-                    </a>
-                  </div>
+      {/* Contact Information Cards - Above the fold */}
+      <section className="py-16 lg:py-20 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Email Card */}
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+              <div className="inline-flex items-center justify-center h-14 w-14 rounded-xl gradient-emerald mb-6">
+                <Mail className="h-7 w-7 text-white" />
+              </div>
+              <h3 className="text-xl font-heading mb-3 text-foreground">Email Us</h3>
+              <p className="text-muted-foreground mb-4">
+                Send us an email anytime, we'll respond within 24 hours
+              </p>
+              <a
+                href="mailto:hello@puxxnicotine.ie"
+                className="text-lg font-semibold text-primary hover:text-green-700 hover:underline inline-flex items-center gap-2"
+              >
+                hello@puxxnicotine.ie
+              </a>
+            </div>
+
+            {/* Phone Card */}
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+              <div className="inline-flex items-center justify-center h-14 w-14 rounded-xl gradient-emerald mb-6">
+                <Phone className="h-7 w-7 text-white" />
+              </div>
+              <h3 className="text-xl font-heading mb-3 text-foreground">Call Us</h3>
+              <p className="text-muted-foreground mb-4">
+                Monday - Friday, 9:00 AM - 6:00 PM IST
+              </p>
+              <a
+                href="tel:+35312345678"
+                className="text-lg font-semibold text-primary hover:text-green-700 hover:underline inline-flex items-center gap-2"
+              >
+                +353 1 234 5678
+              </a>
+            </div>
+
+            {/* Location Card */}
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+              <div className="inline-flex items-center justify-center h-14 w-14 rounded-xl gradient-emerald mb-6">
+                <MapPin className="h-7 w-7 text-white" />
+              </div>
+              <h3 className="text-xl font-heading mb-3 text-foreground">Location</h3>
+              <p className="text-muted-foreground mb-4">
+                Serving all of Ireland with fast nationwide delivery
+              </p>
+              <p className="text-lg font-semibold text-primary">
+                Dublin, Ireland
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Form Section */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Left Side - Contact Form */}
+            <div className="lg:col-span-2">
+              <div className="mb-8">
+                <h2 className="text-3xl sm:text-4xl font-heading text-foreground mb-4">
+                  Send us a Message
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  Fill out the form below and our team will get back to you within 24 hours during business days.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-10 border border-gray-100">
+                <ContactForm />
+              </div>
+            </div>
+
+            {/* Right Side - Additional Info */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Response Time Highlight */}
+              <div className="bg-gradient-to-br from-primary to-green-600 rounded-2xl p-8 text-white">
+                <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm mb-4">
+                  <Clock className="h-6 w-6" />
                 </div>
+                <h3 className="text-xl font-heading mb-3">Quick Response</h3>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  We typically respond to all inquiries within <span className="font-bold">24 hours</span> during business days. For urgent matters, please call us directly.
+                </p>
+              </div>
 
-                {/* Phone */}
-                <div className="flex items-start gap-3">
-                  <div className="bg-green-100 rounded-lg p-2 flex-shrink-0">
-                    <Phone className="h-5 w-5 text-green-600" />
+              {/* Quick Help Card */}
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                <h3 className="text-xl font-heading text-foreground mb-4">Quick Information</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">Shipping:</span> Free delivery on orders over €30
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Phone</p>
-                    <a
-                      href="tel:+35312345678"
-                      className="text-sm text-green-600 hover:text-green-700 hover:underline"
-                    >
-                      +353 1 234 5678
-                    </a>
+                  <div className="flex items-start gap-3">
+                    <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">Returns:</span> 30-day return policy on all products
+                    </p>
                   </div>
-                </div>
-
-                {/* Hours */}
-                <div className="flex items-start gap-3">
-                  <div className="bg-green-100 rounded-lg p-2 flex-shrink-0">
-                    <Clock className="h-5 w-5 text-green-600" />
+                  <div className="flex items-start gap-3">
+                    <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">Age Requirement:</span> Must be 18+ to purchase
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Business Hours</p>
-                    <p className="text-sm text-gray-600">Monday - Friday</p>
-                    <p className="text-sm text-gray-600">9:00 AM - 6:00 PM IST</p>
-                  </div>
-                </div>
-
-                {/* Location */}
-                <div className="flex items-start gap-3">
-                  <div className="bg-green-100 rounded-lg p-2 flex-shrink-0">
-                    <MapPin className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Location</p>
-                    <p className="text-sm text-gray-600">
-                      Serving all of Ireland
-                      <br />
-                      Fast nationwide delivery
+                  <div className="flex items-start gap-3">
+                    <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">Payment:</span> Secure checkout with multiple options
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* FAQ Quick Links Card */}
-            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Quick Help</h3>
-              <div className="space-y-2">
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Shipping:</span> Free delivery on orders over €30
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Returns:</span> 30-day return policy
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Age:</span> 18+ only
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Payment:</span> Secure checkout available
+              {/* Business Hours */}
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                <h3 className="text-xl font-heading text-foreground mb-4">Business Hours</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-sm font-medium text-foreground">Monday - Friday</span>
+                    <span className="text-sm text-muted-foreground">9:00 AM - 6:00 PM</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-sm font-medium text-foreground">Saturday</span>
+                    <span className="text-sm text-muted-foreground">Closed</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm font-medium text-foreground">Sunday</span>
+                    <span className="text-sm text-muted-foreground">Closed</span>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  All times are in Irish Standard Time (IST)
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Response Time Card */}
-            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Response Time</h3>
-              <p className="text-sm text-gray-600">
-                We typically respond to all inquiries within <span className="font-semibold text-green-600">24 hours</span> during business days.
+      {/* How We Can Help Section */}
+      <section className="py-16 lg:py-24 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-heading text-foreground mb-4">
+              How Can We Help You?
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Our dedicated team is ready to assist you with any questions or concerns
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Product Questions */}
+            <div className="text-center group">
+              <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl gradient-emerald mb-6 group-hover:scale-110 transition-transform">
+                <MessageSquare className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-heading mb-3 text-foreground">Product Questions</h3>
+              <p className="text-muted-foreground">
+                Learn about our 14 flavors, nicotine strengths, ingredients, and find the perfect pouch for you
+              </p>
+            </div>
+
+            {/* Order Support */}
+            <div className="text-center group">
+              <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl gradient-emerald mb-6 group-hover:scale-110 transition-transform">
+                <Headphones className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-heading mb-3 text-foreground">Order Support</h3>
+              <p className="text-muted-foreground">
+                Track your shipment, manage orders, process returns, or get help with any delivery questions
+              </p>
+            </div>
+
+            {/* General Inquiries */}
+            <div className="text-center group">
+              <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl gradient-emerald mb-6 group-hover:scale-110 transition-transform">
+                <Users className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-heading mb-3 text-foreground">General Inquiries</h3>
+              <p className="text-muted-foreground">
+                Partnership opportunities, bulk orders, retail questions, or any other business inquiries
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Bottom Section - Why Contact Us */}
-      <div className="bg-white border-t">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              We're Here to Help
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Whether you have questions about our products, need help with your order, or want
-              to learn more about PUXX nicotine pouches, our team is ready to assist you.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6">
-                <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Mail className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Product Questions</h3>
-                <p className="text-sm text-gray-600">
-                  Learn about flavors, strengths, and ingredients
-                </p>
-              </div>
-              <div className="p-6">
-                <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Phone className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Order Support</h3>
-                <p className="text-sm text-gray-600">
-                  Track shipments and manage your orders
-                </p>
-              </div>
-              <div className="p-6">
-                <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Clock className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">General Inquiries</h3>
-                <p className="text-sm text-gray-600">
-                  Partnership opportunities and more
-                </p>
-              </div>
+      {/* FAQ Callout Section */}
+      <section className="py-16 lg:py-20 bg-background">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl gradient-irish p-12 lg:p-16 text-center">
+            <div className="relative z-10">
+              <h2 className="text-3xl sm:text-4xl font-heading text-white mb-4">
+                Looking for Quick Answers?
+              </h2>
+              <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                Check out our FAQ page for instant answers to common questions about our products, shipping, and more
+              </p>
+              <a
+                href="/faq"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl bg-white text-primary hover:bg-white/90 transition-all shadow-lg"
+              >
+                Visit FAQ Page
+              </a>
             </div>
+
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

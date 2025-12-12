@@ -36,8 +36,8 @@ export function Footer() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Brand section */}
           <div className="space-y-8">
-            <Logo variant="white" size="lg" className="h-12 w-auto" />
-            <p className="text-sm leading-6 text-cream/80">
+            <Logo variant="black" size="lg" className="h-12 w-auto" />
+            <p className="text-sm leading-6 text-muted-foreground">
               Premium nicotine pouches delivered across Ireland. Experience the world's best pouches with 14 unique flavors.
             </p>
             <div className="flex space-x-6">
@@ -45,7 +45,7 @@ export function Footer() {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-cream/60 hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   <span className="sr-only">{item.name}</span>
                   <item.icon className="h-6 w-6" aria-hidden="true" />
@@ -58,13 +58,13 @@ export function Footer() {
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-heading text-cream">Shop</h3>
+                <h3 className="text-sm font-semibold text-foreground">Shop</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.shop.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm leading-6 text-cream/80 hover:text-primary transition-colors"
+                        className="text-sm leading-6 text-muted-foreground hover:text-primary transition-colors"
                       >
                         {item.name}
                       </Link>
@@ -73,13 +73,13 @@ export function Footer() {
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-heading text-cream">Support</h3>
+                <h3 className="text-sm font-semibold text-foreground">Support</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.support.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm leading-6 text-cream/80 hover:text-primary transition-colors"
+                        className="text-sm leading-6 text-muted-foreground hover:text-primary transition-colors"
                       >
                         {item.name}
                       </Link>
@@ -90,13 +90,13 @@ export function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-heading text-cream">Company</h3>
+                <h3 className="text-sm font-semibold text-foreground">Company</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.company.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm leading-6 text-cream/80 hover:text-primary transition-colors"
+                        className="text-sm leading-6 text-muted-foreground hover:text-primary transition-colors"
                       >
                         {item.name}
                       </Link>
@@ -105,8 +105,8 @@ export function Footer() {
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-heading text-cream">Newsletter</h3>
-                <p className="mt-6 text-sm leading-6 text-cream/80">
+                <h3 className="text-sm font-semibold text-foreground">Newsletter</h3>
+                <p className="mt-6 text-sm leading-6 text-muted-foreground">
                   Get exclusive offers and updates delivered to your inbox.
                 </p>
                 <form className="mt-4 sm:flex sm:max-w-md">
@@ -119,7 +119,7 @@ export function Footer() {
                     id="email-address"
                     autoComplete="email"
                     required
-                    className="w-full min-w-0 appearance-none rounded-md border-0 bg-white/5 px-3 py-1.5 text-base text-cream ring-1 ring-inset ring-white/10 placeholder:text-cream/40 focus:ring-2 focus:ring-inset focus:ring-primary sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
+                    className="w-full min-w-0 appearance-none rounded-md border border-input bg-background px-3 py-1.5 text-base text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
                     placeholder="Enter your email"
                   />
                   <div className="mt-4 sm:ml-4 sm:mt-0 sm:flex-shrink-0">
@@ -137,12 +137,12 @@ export function Footer() {
         </div>
 
         {/* Bottom section */}
-        <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
+        <div className="mt-16 border-t border-border pt-8 sm:mt-20 lg:mt-24">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <p className="text-xs leading-5 text-cream/60">
+            <p className="text-xs leading-5 text-muted-foreground">
               &copy; {new Date().getFullYear()} PUXX Ireland. All rights reserved.
             </p>
-            <p className="text-xs leading-5 text-cream/60">
+            <p className="text-xs leading-5 text-muted-foreground">
               Must be 18+ to purchase nicotine products.
             </p>
           </div>

@@ -51,7 +51,7 @@ export default async function HomePage() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden min-h-[600px] lg:min-h-[700px]">
+      <section className="relative py-24 lg:py-40 overflow-hidden min-h-[700px] lg:min-h-[800px]">
         {/* Background Banner Image */}
         <div className="absolute inset-0">
           <Image
@@ -64,59 +64,61 @@ export default async function HomePage() {
             sizes="100vw"
           />
           {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
           {/* Irish green accent overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent mix-blend-overlay" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center w-full">
-            {/* Hero Content */}
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading tracking-tight text-white">
-                Ireland's Premium{' '}
-                <span className="text-gradient-emerald">Tobacco-Free</span>{' '}
-                Nicotine Pouches
-              </h1>
-              <p className="mt-6 text-lg sm:text-xl text-white/90 max-w-2xl mx-auto lg:mx-0">
-                14 delicious flavors. Clean satisfaction. Delivered to your door.
-              </p>
+          {/* Hero Content - Centered */}
+          <div className="text-center w-full">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-heading tracking-tight text-white leading-[1.1] mb-8">
+              Ireland's Premium
+              <br />
+              <span className="relative inline-block mt-2">
+                <span className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black">
+                  <span className="text-green-500">Toba</span><span className="text-white">cco-</span><span className="text-orange-500">Free</span>
+                </span>
+              </span>
+              <br />
+              <span className="mt-2 inline-block">Nicotine Pouches</span>
+            </h1>
 
-              {/* CTA Buttons */}
-              <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button asChild size="lg" className="gradient-emerald hover:opacity-90 text-lg">
-                  <Link href="/products">
-                    Shop All Flavors
-                    <ShoppingBag className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="text-lg bg-white/10 hover:bg-white/20 text-white border-white/30">
-                  <Link href="/about">
-                    Learn More
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
+            <p className="mt-8 text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium">
+              14 delicious flavors. Clean satisfaction. Delivered to your door.
+            </p>
 
-              {/* Trust indicators */}
-              <div className="mt-10 flex items-center gap-6 justify-center lg:justify-start text-sm text-white/90">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-accent" />
-                  <span>Age Verified</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-accent" />
-                  <span>Fast Delivery</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-accent" />
-                  <span>Premium Quality</span>
-                </div>
-              </div>
+            {/* CTA Buttons */}
+            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="gradient-emerald hover:opacity-90 text-lg px-8 py-6 text-xl">
+                <Link href="/products">
+                  Shop All Flavors
+                  <ShoppingBag className="ml-2 h-6 w-6" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6 text-xl bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                <Link href="/about">
+                  Learn More
+                  <ArrowRight className="ml-2 h-6 w-6" />
+                </Link>
+              </Button>
             </div>
 
-            {/* Right side - Let banner image show through */}
-            <div className="hidden lg:block" />
+            {/* Trust indicators */}
+            <div className="mt-16 flex flex-wrap items-center gap-8 justify-center text-base lg:text-lg text-white/90">
+              <div className="flex items-center gap-3">
+                <Shield className="h-6 w-6 text-accent" />
+                <span className="font-medium">Age Verified</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Truck className="h-6 w-6 text-accent" />
+                <span className="font-medium">Fast Delivery</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Star className="h-6 w-6 text-accent" />
+                <span className="font-medium">Premium Quality</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -232,6 +234,21 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Banner Section */}
+      <section className="bg-background">
+        <div className="w-full">
+          <div className="relative w-full aspect-[16/5] lg:aspect-[21/5] overflow-hidden">
+            <Image
+              src="/images/marketing/puxxbanner.jpg"
+              alt="PUXX Premium Nicotine Pouches Banner"
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+            />
           </div>
         </div>
       </section>

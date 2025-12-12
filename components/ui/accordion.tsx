@@ -12,24 +12,26 @@ interface AccordionItemProps {
 
 function AccordionItem({ title, children, isOpen, onToggle }: AccordionItemProps) {
   return (
-    <div className="border-b border-border">
+    <div className="border-b border-border last:border-b-0">
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between py-4 text-left font-medium hover:text-primary transition-colors"
+        className="flex w-full items-center justify-between py-5 px-6 text-left font-medium hover:bg-muted/50 transition-all group"
       >
-        <span className="text-base font-semibold">{title}</span>
+        <span className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors pr-8">
+          {title}
+        </span>
         <ChevronDown
-          className={`h-5 w-5 transition-transform duration-200 ${
-            isOpen ? 'rotate-180 text-primary' : ''
+          className={`h-5 w-5 flex-shrink-0 transition-all duration-300 ${
+            isOpen ? 'rotate-180 text-primary' : 'text-muted-foreground group-hover:text-primary'
           }`}
         />
       </button>
       <div
-        className={`overflow-hidden transition-all duration-200 ${
-          isOpen ? 'max-h-96 pb-4' : 'max-h-0'
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="text-muted-foreground">{children}</div>
+        <div className="px-6 pb-6 text-muted-foreground leading-relaxed">{children}</div>
       </div>
     </div>
   );

@@ -1,20 +1,59 @@
-import { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
-import { HelpCircle, Mail, MessageCircle } from 'lucide-react';
-import { PageHeader } from '@/components/static-pages/page-header';
-import { Breadcrumbs } from '@/components/static-pages/breadcrumbs';
+import { useState, useMemo } from 'react';
+import {
+  HelpCircle,
+  Mail,
+  MessageCircle,
+  Search,
+  Package,
+  Truck,
+  ShoppingCart,
+  UserCircle,
+  Info,
+  X
+} from 'lucide-react';
 import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-export const metadata: Metadata = {
-  title: 'Frequently Asked Questions | PUXX Ireland',
-  description:
-    'Find answers to common questions about PUXX Ireland nicotine pouches, ordering, shipping, and more.',
-  openGraph: {
-    title: 'FAQ - PUXX Ireland',
-    description: 'Get answers to your questions about nicotine pouches',
+// Note: metadata export removed as this is now a client component for search functionality
+// SEO is handled via the FAQ schema at the bottom of the page
+
+// FAQ Categories with metadata
+const faqCategories = [
+  {
+    id: 'general',
+    title: 'General Questions',
+    icon: Info,
+    description: 'Learn about nicotine pouches and PUXX products'
   },
-};
+  {
+    id: 'ordering',
+    title: 'Ordering',
+    icon: ShoppingCart,
+    description: 'How to place and manage orders'
+  },
+  {
+    id: 'shipping',
+    title: 'Shipping',
+    icon: Truck,
+    description: 'Delivery information and tracking'
+  },
+  {
+    id: 'products',
+    title: 'Products',
+    icon: Package,
+    description: 'Flavors, strengths, and product details'
+  },
+  {
+    id: 'account',
+    title: 'Account & Returns',
+    icon: UserCircle,
+    description: 'Account management and return policies'
+  }
+];
 
 // FAQ Data organized by category
 const generalFAQs = [
@@ -494,120 +533,232 @@ const accountReturnsFAQs = [
 ];
 
 export default function FAQPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // Combine all FAQs with their category
+  const allFAQs = useMemo(() => [
+    ...generalFAQs.map(faq => ({ ...faq, category: 'general' })),
+    ...orderingFAQs.map(faq => ({ ...faq, category: 'ordering' })),
+    ...shippingFAQs.map(faq => ({ ...faq, category: 'shipping' })),
+    ...productFAQs.map(faq => ({ ...faq, category: 'products' })),
+    ...accountReturnsFAQs.map(faq => ({ ...faq, category: 'account' })),
+  ], []);
+
+  // Filter FAQs based on search and category
+  const filteredFAQs = useMemo(() => {
+    let filtered = allFAQs;
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(faq =>
+        faq.title.toLowerCase().includes(query)
+      );
+    }
+
+    // Filter by category
+    if (activeCategory) {
+      filtered = filtered.filter(faq => faq.category === activeCategory);
+    }
+
+    return filtered;
+  }, [allFAQs, searchQuery, activeCategory]);
+
+  // Group filtered FAQs by category
+  const groupedFAQs = useMemo(() => {
+    const grouped: Record<string, typeof allFAQs> = {};
+    filteredFAQs.forEach(faq => {
+      if (!grouped[faq.category]) {
+        grouped[faq.category] = [];
+      }
+      grouped[faq.category].push(faq);
+    });
+    return grouped;
+  }, [filteredFAQs]);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <PageHeader
-        title="Frequently Asked Questions"
-        description="Find answers to common questions about PUXX Ireland products and services"
-      />
+      {/* Hero Section */}
+      <section className="relative py-20 lg:py-28 overflow-hidden bg-gradient-irish">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+        </div>
 
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={[{ label: 'FAQ' }]} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-white/10 backdrop-blur-sm mb-6">
+              <HelpCircle className="h-10 w-10 text-white" />
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading text-white mb-6">
+              Frequently Asked Questions
+            </h1>
+            <p className="text-xl sm:text-2xl text-white/90 max-w-3xl mx-auto mb-8">
+              Everything you need to know about PUXX nicotine pouches, ordering, and delivery
+            </p>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Categories Sidebar */}
-          <div className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-24 bg-card border border-border rounded-lg p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <HelpCircle className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-heading text-foreground">Categories</h2>
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search for answers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 pr-12 h-14 text-lg bg-white/95 backdrop-blur-sm border-0 shadow-xl"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                )}
               </div>
-              <nav className="space-y-2">
-                <a
-                  href="#general"
-                  className="block py-2 px-3 rounded-md text-sm hover:bg-muted transition-colors"
-                >
-                  General Questions
-                </a>
-                <a
-                  href="#ordering"
-                  className="block py-2 px-3 rounded-md text-sm hover:bg-muted transition-colors"
-                >
-                  Ordering
-                </a>
-                <a
-                  href="#shipping"
-                  className="block py-2 px-3 rounded-md text-sm hover:bg-muted transition-colors"
-                >
-                  Shipping
-                </a>
-                <a
-                  href="#products"
-                  className="block py-2 px-3 rounded-md text-sm hover:bg-muted transition-colors"
-                >
-                  Products
-                </a>
-                <a
-                  href="#account"
-                  className="block py-2 px-3 rounded-md text-sm hover:bg-muted transition-colors"
-                >
-                  Account & Returns
-                </a>
-              </nav>
+              {searchQuery && (
+                <p className="mt-4 text-white/80 text-sm">
+                  Found {filteredFAQs.length} result{filteredFAQs.length !== 1 ? 's' : ''}
+                </p>
+              )}
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* General Questions */}
-            <section id="general" className="mb-12 scroll-mt-24">
-              <h2 className="text-2xl font-heading text-foreground mb-6">General Questions</h2>
-              <div className="bg-card border border-border rounded-lg p-6">
-                <Accordion items={generalFAQs} />
+      {/* Category Cards - Quick Navigation */}
+      <section className="py-12 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {faqCategories.map((category) => {
+              const Icon = category.icon;
+              const isActive = activeCategory === category.id;
+              const categoryFAQCount = groupedFAQs[category.id]?.length || 0;
+
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => setActiveCategory(isActive ? null : category.id)}
+                  className={`group relative overflow-hidden rounded-2xl p-6 text-left transition-all hover:scale-105 ${
+                    isActive
+                      ? 'bg-gradient-emerald text-white shadow-lg'
+                      : 'bg-white hover:shadow-md'
+                  }`}
+                >
+                  <div className={`inline-flex items-center justify-center h-12 w-12 rounded-xl mb-4 ${
+                    isActive ? 'bg-white/20' : 'bg-primary/10'
+                  }`}>
+                    <Icon className={`h-6 w-6 ${isActive ? 'text-white' : 'text-primary'}`} />
+                  </div>
+                  <h3 className={`text-lg font-heading mb-2 ${
+                    isActive ? 'text-white' : 'text-foreground'
+                  }`}>
+                    {category.title}
+                  </h3>
+                  <p className={`text-sm ${
+                    isActive ? 'text-white/80' : 'text-muted-foreground'
+                  }`}>
+                    {categoryFAQCount} question{categoryFAQCount !== 1 ? 's' : ''}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+
+          {activeCategory && (
+            <div className="mt-6 text-center">
+              <Button
+                variant="outline"
+                onClick={() => setActiveCategory(null)}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                Clear filter
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* FAQ Content */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {Object.keys(groupedFAQs).length > 0 ? (
+            <div className="space-y-12">
+              {faqCategories.map((category) => {
+                const categoryFAQs = groupedFAQs[category.id];
+                if (!categoryFAQs || categoryFAQs.length === 0) return null;
+
+                const Icon = category.icon;
+
+                return (
+                  <section key={category.id} id={category.id} className="scroll-mt-24">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary/10">
+                        <Icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h2 className="text-3xl font-heading text-foreground">
+                          {category.title}
+                        </h2>
+                        <p className="text-muted-foreground">{category.description}</p>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+                      <Accordion
+                        items={categoryFAQs.map(({ title, content }) => ({ title, content }))}
+                      />
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-muted mb-6">
+                <Search className="h-10 w-10 text-muted-foreground" />
               </div>
-            </section>
+              <h3 className="text-2xl font-heading text-foreground mb-3">
+                No results found
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Try adjusting your search or browse all categories
+              </p>
+              <Button onClick={() => { setSearchQuery(''); setActiveCategory(null); }}>
+                Clear filters
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
 
-            {/* Ordering */}
-            <section id="ordering" className="mb-12 scroll-mt-24">
-              <h2 className="text-2xl font-heading text-foreground mb-6">Ordering</h2>
-              <div className="bg-card border border-border rounded-lg p-6">
-                <Accordion items={orderingFAQs} />
-              </div>
-            </section>
-
-            {/* Shipping */}
-            <section id="shipping" className="mb-12 scroll-mt-24">
-              <h2 className="text-2xl font-heading text-foreground mb-6">Shipping</h2>
-              <div className="bg-card border border-border rounded-lg p-6">
-                <Accordion items={shippingFAQs} />
-              </div>
-            </section>
-
-            {/* Products */}
-            <section id="products" className="mb-12 scroll-mt-24">
-              <h2 className="text-2xl font-heading text-foreground mb-6">Products</h2>
-              <div className="bg-card border border-border rounded-lg p-6">
-                <Accordion items={productFAQs} />
-              </div>
-            </section>
-
-            {/* Account & Returns */}
-            <section id="account" className="mb-12 scroll-mt-24">
-              <h2 className="text-2xl font-heading text-foreground mb-6">Account & Returns</h2>
-              <div className="bg-card border border-border rounded-lg p-6">
-                <Accordion items={accountReturnsFAQs} />
-              </div>
-            </section>
-
-            {/* Contact Section */}
-            <section className="bg-gradient-emerald rounded-2xl p-8 md:p-12 text-white">
+      {/* Contact Section */}
+      <section className="py-16 lg:py-24 bg-muted/30">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-emerald p-12 lg:p-16">
+            <div className="relative z-10">
               <div className="flex flex-col md:flex-row gap-8 items-center">
                 <div className="flex-shrink-0">
-                  <MessageCircle className="h-20 w-20 text-white/90" />
+                  <div className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-white/10 backdrop-blur-sm">
+                    <MessageCircle className="h-12 w-12 text-white" />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-2xl font-heading mb-4">Still Have Questions?</h2>
-                  <p className="text-white/90 mb-6">
-                    Our customer support team is here to help. We typically respond within 24 hours
-                    during business hours.
+                <div className="flex-1 text-center md:text-left">
+                  <h2 className="text-3xl lg:text-4xl font-heading text-white mb-4">
+                    Still Have Questions?
+                  </h2>
+                  <p className="text-xl text-white/90 mb-8">
+                    Our customer support team is here to help. We typically respond within 24 hours during business hours.
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                     <Button
                       asChild
                       size="lg"
-                      className="bg-white text-primary hover:bg-white/90 font-semibold"
+                      className="bg-white text-primary hover:bg-white/90 font-semibold text-lg"
                     >
                       <a href="mailto:hello@puxxnicotine.ie">
                         <Mail className="mr-2 h-5 w-5" />
@@ -618,20 +769,24 @@ export default function FAQPage() {
                       asChild
                       size="lg"
                       variant="outline"
-                      className="border-white text-white hover:bg-white/10"
+                      className="border-2 border-white text-white hover:bg-white/10 text-lg"
                     >
                       <Link href="/contact">Contact Form</Link>
                     </Button>
                   </div>
-                  <p className="text-sm text-white/75 mt-4">
+                  <p className="text-sm text-white/75 mt-6">
                     Support Hours: Monday-Friday 9:00 AM - 6:00 PM IST
                   </p>
                 </div>
               </div>
-            </section>
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* FAQ Schema Markup for SEO */}
       <script
@@ -640,18 +795,12 @@ export default function FAQPage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
-            mainEntity: [
-              ...generalFAQs,
-              ...orderingFAQs,
-              ...shippingFAQs,
-              ...productFAQs,
-              ...accountReturnsFAQs,
-            ].map((faq) => ({
+            mainEntity: allFAQs.map((faq) => ({
               '@type': 'Question',
               name: faq.title,
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: typeof faq.content === 'string' ? faq.content : faq.title,
+                text: faq.title, // Simplified for schema
               },
             })),
           }),

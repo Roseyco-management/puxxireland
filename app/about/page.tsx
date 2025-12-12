@@ -1,9 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Shield, Zap, Heart, CheckCircle, Truck, Lock, Award } from 'lucide-react';
-import { PageHeader } from '@/components/static-pages/page-header';
-import { Breadcrumbs } from '@/components/static-pages/breadcrumbs';
+import { Shield, Zap, Heart, CheckCircle, Truck, Lock, Award, Leaf, Package, Star, Users, MapPin, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
@@ -89,109 +87,162 @@ const trustBadges = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <PageHeader
-        title="About PUXX Ireland"
-        description="Ireland's premier destination for premium tobacco-free nicotine pouches"
-      />
+    <main className="min-h-screen bg-background">
+      {/* Hero Banner Section */}
+      <section className="relative py-24 lg:py-40 overflow-hidden min-h-[500px] lg:min-h-[600px]">
+        {/* Background Banner Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/marketing/puxxbanner.jpg"
+            alt="PUXX Premium Nicotine Pouches - About Us"
+            fill
+            priority
+            className="object-cover object-center"
+            quality={90}
+            sizes="100vw"
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        </div>
 
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={[{ label: 'About Us' }]} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="text-center w-full">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-heading tracking-tight text-white leading-[1.1] mb-8">
+              About <span className="text-green-400">PUXX</span> Ireland
+            </h1>
+            <p className="mt-8 text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium">
+              Ireland's premier destination for premium tobacco-free nicotine pouches
+            </p>
+
+            {/* Trust indicators */}
+            <div className="mt-16 flex flex-wrap items-center gap-8 justify-center text-base lg:text-lg text-white/90">
+              <div className="flex items-center gap-3">
+                <MapPin className="h-6 w-6 text-white" />
+                <span className="font-medium">Proudly Irish</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Star className="h-6 w-6 text-white" />
+                <span className="font-medium">Premium Quality</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Users className="h-6 w-6 text-white" />
+                <span className="font-medium">Customer First</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Our Story Section */}
-        <section className="mb-16">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <section className="py-16 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-heading text-foreground mb-6">Our Story</h2>
-              <div className="prose prose-lg max-w-none">
-                <p className="text-muted-foreground mb-4">
-                  PUXX Ireland was founded with a clear mission: to bring premium, tobacco-free
-                  nicotine pouches to the Irish market. We believe that adults who choose to use
-                  nicotine deserve access to modern, clean, and convenient alternatives.
+              <h2 className="text-4xl sm:text-5xl font-heading text-foreground mb-8">
+                The PUXX Story
+              </h2>
+              <div className="space-y-6 text-lg text-muted-foreground">
+                <p className="leading-relaxed">
+                  PUXX Ireland was born from a vision to revolutionize the nicotine experience in Ireland.
+                  We saw a market craving premium, tobacco-free alternatives that didn't compromise on
+                  quality or satisfaction.
                 </p>
-                <p className="text-muted-foreground mb-4">
-                  Our journey began with a simple observation: the nicotine pouch market in Ireland
-                  lacked a dedicated provider focused on quality, variety, and customer service. We
-                  set out to change that by partnering with world-class manufacturers and curating
-                  a selection of the finest flavors available.
+                <p className="leading-relaxed">
+                  What started as a mission to fill a gap has evolved into a commitment to excellence.
+                  We partner with world-class manufacturers to curate only the finest nicotine pouches,
+                  ensuring every flavor delivers the premium experience our customers deserve.
                 </p>
-                <p className="text-muted-foreground">
-                  Today, PUXX Ireland proudly serves customers across the country with 14 unique
-                  flavors, fast shipping, and exceptional support. We're not just selling
-                  products—we're building a community of satisfied customers who trust us for their
-                  nicotine needs.
+                <p className="leading-relaxed">
+                  Today, we're proud to serve Ireland with 14 exceptional flavors, lightning-fast delivery,
+                  and customer service that truly cares. We're not just a shop—we're your trusted partner
+                  in a cleaner nicotine journey.
                 </p>
               </div>
             </div>
 
-            <div className="bg-gradient-emerald rounded-2xl p-8 text-white">
-              <h3 className="text-2xl font-heading mb-6">Our Mission</h3>
-              <blockquote className="text-lg italic border-l-4 border-white pl-6 mb-6">
-                "To make premium tobacco-free nicotine pouches accessible to all Irish adults,
-                delivering exceptional quality, variety, and service with every order."
-              </blockquote>
-              <h3 className="text-2xl font-heading mb-4">Our Vision</h3>
-              <p className="text-white/90">
-                To become Ireland's most trusted and respected nicotine pouch provider, known for
-                our commitment to quality, innovation, and customer satisfaction.
-              </p>
+            <div className="relative">
+              <div className="bg-gradient-to-br from-primary via-green-600 to-emerald-600 rounded-3xl p-10 lg:p-12 text-white shadow-2xl">
+                <h3 className="text-3xl font-heading mb-6">Our Mission</h3>
+                <blockquote className="text-xl leading-relaxed mb-8 border-l-4 border-white/50 pl-6">
+                  "To make premium tobacco-free nicotine pouches accessible to every Irish adult,
+                  delivering unmatched quality, variety, and service with every single order."
+                </blockquote>
+                <div className="pt-8 border-t border-white/30">
+                  <h3 className="text-2xl font-heading mb-4">Our Vision</h3>
+                  <p className="text-lg text-white/95 leading-relaxed">
+                    To become Ireland's most trusted nicotine pouch provider, recognized for our
+                    unwavering commitment to quality, innovation, and customer satisfaction.
+                  </p>
+                </div>
+              </div>
+              {/* Decorative element */}
+              <div className="absolute -z-10 top-8 -right-8 w-full h-full bg-primary/10 rounded-3xl" />
             </div>
           </div>
         </section>
 
         {/* Our Values Section */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-heading text-foreground text-center mb-12">Our Values</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+        <section className="py-16 lg:py-24 bg-muted/30 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-heading text-foreground mb-4">
+              What We Stand For
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Our core values guide everything we do, from product selection to customer service
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-10">
             {values.map((value, index) => (
               <div
                 key={index}
-                className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-colors"
+                className="bg-background border-2 border-border rounded-2xl p-8 hover:border-primary hover:shadow-xl transition-all duration-300 group"
               >
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <value.icon className="h-6 w-6 text-primary" />
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <value.icon className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-heading text-foreground mb-3">{value.title}</h3>
-                <p className="text-muted-foreground">{value.description}</p>
+                <h3 className="text-2xl font-heading text-foreground mb-4">{value.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{value.description}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Why Choose PUXX Section */}
-        <section className="mb-16 bg-muted/30 rounded-2xl p-8 md:p-12">
-          <h2 className="text-3xl font-heading text-foreground text-center mb-12">
-            Why Choose PUXX?
-          </h2>
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <section className="py-16 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Visual - Why PUXX Image */}
             <div className="relative order-2 lg:order-1">
-              <div className="relative aspect-[3/4] w-full max-w-md mx-auto">
+              <div className="relative aspect-[3/4] w-full max-w-lg mx-auto">
                 <Image
                   src="/images/marketing/puxx-why.png"
                   alt="Why Choose PUXX - Premium Tobacco-Free Nicotine Pouches"
                   fill
-                  className="object-contain rounded-lg"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
+                  className="object-contain drop-shadow-2xl"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 500px"
                 />
               </div>
             </div>
 
             {/* Benefits List */}
             <div className="order-1 lg:order-2">
-              <div className="space-y-6">
+              <h2 className="text-4xl sm:text-5xl font-heading text-foreground mb-4">
+                Why Choose PUXX?
+              </h2>
+              <p className="text-lg text-muted-foreground mb-10">
+                Premium quality nicotine pouches designed for the modern Irish lifestyle
+              </p>
+              <div className="space-y-8">
                 {whyPuxx.map((item, index) => (
-                  <div key={index} className="flex gap-4">
+                  <div key={index} className="flex gap-5 group">
                     <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                        <item.icon className="h-5 w-5 text-white" />
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <item.icon className="h-6 w-6 text-white" />
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-heading text-foreground mb-2">{item.title}</h3>
-                      <p className="text-muted-foreground">{item.description}</p>
+                      <h3 className="text-xl font-heading text-foreground mb-2">{item.title}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{item.description}</p>
                     </div>
                   </div>
                 ))}
@@ -201,111 +252,173 @@ export default function AboutPage() {
         </section>
 
         {/* Worldwide Quality Section */}
-        <section className="mb-16">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-emerald p-12 md:p-16">
+        <section className="py-16 lg:py-24">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-green-600 to-emerald-600 p-12 lg:p-20 shadow-2xl">
             <div className="relative z-10 text-center text-white">
-              <div className="max-w-4xl mx-auto">
-                <div className="relative aspect-[16/9] w-full max-w-3xl mx-auto mb-8">
+              <div className="max-w-5xl mx-auto">
+                <div className="relative aspect-[16/9] w-full max-w-4xl mx-auto mb-10">
                   <Image
                     src="/images/marketing/BLACK-POUCHES-WORLDWIDE.png"
                     alt="PUXX Premium Nicotine Pouches - Trusted Worldwide"
                     fill
-                    className="object-contain"
+                    className="object-contain drop-shadow-2xl"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1000px"
                   />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-heading mb-4">
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-heading mb-6 leading-tight">
                   Premium Quality Trusted Worldwide
                 </h2>
-                <p className="text-xl text-white/90 mb-2">
+                <p className="text-2xl sm:text-3xl text-white mb-4 font-semibold">
                   Now Available in Ireland
                 </p>
-                <p className="text-lg text-white/80 max-w-2xl mx-auto">
+                <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto mb-10 leading-relaxed">
                   Join thousands of satisfied customers who trust PUXX for their nicotine needs
                 </p>
+                <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6">
+                  <Link href="/products">
+                    Explore Our Flavors
+                  </Link>
+                </Button>
               </div>
             </div>
             {/* Decorative background elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
           </div>
         </section>
 
-        {/* Team Section */}
-        <section className="mb-16">
-          <div className="bg-card border border-border rounded-2xl p-8 md:p-12 text-center">
-            <h2 className="text-3xl font-heading text-foreground mb-6">Our Team</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              We're a dedicated team of professionals committed to serving our Irish customers with
-              excellence. From product selection to customer support, every member of our team
-              shares a passion for quality and service.
+        {/* Our Commitment Section */}
+        <section className="py-16 lg:py-24 bg-muted/30 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl sm:text-5xl font-heading text-foreground mb-6">
+              Our Commitment to You
+            </h2>
+            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed mb-12">
+              We're more than just a retailer—we're a dedicated team of professionals committed to
+              serving Irish customers with excellence. From product selection to customer support,
+              every team member shares a passion for quality and exceptional service.
             </p>
-            <div className="bg-muted/30 rounded-lg p-6 max-w-xl mx-auto">
-              <h3 className="text-xl font-heading text-foreground mb-3">
-                Customer Support Hours
-              </h3>
-              <p className="text-muted-foreground mb-2">Monday - Friday: 9:00 AM - 6:00 PM IST</p>
-              <p className="text-muted-foreground mb-4">Saturday: 10:00 AM - 4:00 PM IST</p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <div className="bg-background border-2 border-border rounded-2xl p-6 hover:border-primary transition-colors">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Package className="h-7 w-7 text-white" />
+                </div>
+                <h3 className="text-xl font-heading text-foreground mb-2">Quality Products</h3>
+                <p className="text-muted-foreground">
+                  Only the finest nicotine pouches make it to our shelves
+                </p>
+              </div>
+
+              <div className="bg-background border-2 border-border rounded-2xl p-6 hover:border-primary transition-colors">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Truck className="h-7 w-7 text-white" />
+                </div>
+                <h3 className="text-xl font-heading text-foreground mb-2">Fast Delivery</h3>
+                <p className="text-muted-foreground">
+                  3-5 day shipping across Ireland
+                </p>
+              </div>
+
+              <div className="bg-background border-2 border-border rounded-2xl p-6 hover:border-primary transition-colors">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Heart className="h-7 w-7 text-white" />
+                </div>
+                <h3 className="text-xl font-heading text-foreground mb-2">Customer Care</h3>
+                <p className="text-muted-foreground">
+                  Support when you need it most
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-background border-2 border-primary/20 rounded-2xl p-8 max-w-2xl mx-auto">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Clock className="h-6 w-6 text-primary" />
+                <h3 className="text-2xl font-heading text-foreground">
+                  Customer Support Hours
+                </h3>
+              </div>
+              <div className="space-y-2 mb-6 text-muted-foreground">
+                <p className="text-lg">Monday - Friday: 9:00 AM - 6:00 PM IST</p>
+                <p className="text-lg">Saturday: 10:00 AM - 4:00 PM IST</p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-lg">
                 <a
                   href="mailto:hello@puxxnicotine.ie"
-                  className="text-primary hover:underline font-medium"
+                  className="text-primary hover:underline font-semibold"
                 >
                   hello@puxxnicotine.ie
                 </a>
                 <span className="hidden sm:inline text-muted-foreground">|</span>
-                <span className="text-foreground font-medium">+353 1 234 5678</span>
+                <span className="text-foreground font-semibold">+353 1 234 5678</span>
               </div>
             </div>
           </div>
         </section>
 
         {/* Trust Badges Section */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-heading text-foreground text-center mb-12">
-            Shop with Confidence
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="py-16 lg:py-24">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-heading text-foreground mb-4">
+              Shop with Confidence
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Your trust and safety are our top priorities
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {trustBadges.map((badge, index) => (
               <div
                 key={index}
-                className="bg-card border-2 border-primary/20 rounded-lg p-6 text-center hover:border-primary transition-colors"
+                className="bg-background border-2 border-primary/20 rounded-2xl p-8 text-center hover:border-primary hover:shadow-xl transition-all duration-300 group"
               >
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <badge.icon className="h-8 w-8 text-primary" />
+                <div className="w-20 h-20 bg-gradient-to-br from-primary to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <badge.icon className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="text-lg font-heading text-foreground mb-2">{badge.title}</h3>
-                <p className="text-sm text-muted-foreground">{badge.description}</p>
+                <h3 className="text-xl font-heading text-foreground mb-3">{badge.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{badge.description}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-emerald rounded-2xl p-8 md:p-12 text-center text-white">
-          <h2 className="text-3xl font-heading mb-4">Ready to Experience PUXX?</h2>
-          <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-            Discover our range of 14 premium flavors and find your perfect pouch today.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              asChild
-              size="lg"
-              className="bg-white text-primary hover:bg-white/90 font-semibold"
-            >
-              <Link href="/products">Shop Our Products</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white/10"
-            >
-              <Link href="/contact">Contact Us</Link>
-            </Button>
+        <section className="py-16 lg:py-24">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-green-600 to-emerald-600 p-12 lg:p-16 text-center shadow-2xl">
+            <div className="relative z-10">
+              <h2 className="text-4xl sm:text-5xl font-heading text-white mb-6 leading-tight">
+                Ready to Experience PUXX?
+              </h2>
+              <p className="text-xl sm:text-2xl text-white/95 mb-4 font-medium">
+                Discover our range of 14 premium flavors
+              </p>
+              <p className="text-lg text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Find your perfect pouch today and join Ireland's growing community of satisfied PUXX customers
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-white text-primary hover:bg-white/90 font-semibold text-lg px-8 py-6"
+                >
+                  <Link href="/products">Shop Our Products</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-white text-white hover:bg-white/20 font-semibold text-lg px-8 py-6 bg-white/10 backdrop-blur-sm"
+                >
+                  <Link href="/contact">Contact Us</Link>
+                </Button>
+              </div>
+            </div>
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
           </div>
         </section>
       </div>
-    </div>
+    </main>
   );
 }

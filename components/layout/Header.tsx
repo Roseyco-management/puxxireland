@@ -20,7 +20,7 @@ export function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8">
         {/* Logo */}
         <div className="flex lg:flex-1">
-          <Logo variant="white" size="md" priority className="h-10 w-auto" />
+          <Logo variant="black" size="md" priority className="h-10 w-auto" />
         </div>
 
         {/* Mobile menu button */}
