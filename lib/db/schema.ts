@@ -310,6 +310,28 @@ export const newsletterSubscribers = pgTable('newsletter_subscribers', {
   activeIdx: index('newsletter_is_active_idx').on(table.isActive),
 }));
 
+// User addresses
+export const addresses = pgTable('addresses', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 200 }).notNull(),
+  addressLine1: varchar('address_line_1', { length: 255 }).notNull(),
+  addressLine2: varchar('address_line_2', { length: 255 }),
+  city: varchar('city', { length: 100 }).notNull(),
+  county: varchar('county', { length: 100 }),
+  eircode: varchar('eircode', { length: 20 }),
+  country: varchar('country', { length: 2 }).notNull().default('IE'),
+  phone: varchar('phone', { length: 20 }),
+  isDefaultShipping: boolean('is_default_shipping').notNull().default(false),
+  isDefaultBilling: boolean('is_default_billing').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  userIdx: index('addresses_user_id_idx').on(table.userId),
+}));
+
 // ===========================
 // E-COMMERCE RELATIONS
 // ===========================
@@ -384,6 +406,13 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   }),
 }));
 
+export const addressesRelations = relations(addresses, ({ one }) => ({
+  user: one(users, {
+    fields: [addresses.userId],
+    references: [users.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
@@ -421,6 +450,8 @@ export type Review = typeof reviews.$inferSelect;
 export type NewReview = typeof reviews.$inferInsert;
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type NewNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
+export type Address = typeof addresses.$inferSelect;
+export type NewAddress = typeof addresses.$inferInsert;
 
 export enum ActivityType {
   SIGN_UP = 'SIGN_UP',

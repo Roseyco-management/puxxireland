@@ -12,6 +12,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.87.1",
     "@tailwindcss/postcss": "4.1.7",
     "@types/node": "^22.15.18",
@@ -35,6 +36,8 @@
     "radix-ui": "^1.4.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.68.0",
+    "resend": "^6.6.0",
     "server-only": "^0.0.1",
     "stripe": "^18.1.0",
     "swr": "^2.3.3",

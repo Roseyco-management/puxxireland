@@ -44,37 +44,21 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(products.nicotineStrength, strength));
     }
 
-    // Build the query
-    let query = db
-      .select({
-        id: products.id,
-        name: products.name,
-        slug: products.slug,
-        description: products.description,
-        price: products.price,
-        compareAtPrice: products.compareAtPrice,
-        sku: products.sku,
-        nicotineStrength: products.nicotineStrength,
-        flavor: products.flavor,
-        pouchesPerCan: products.pouchesPerCan,
-        ingredients: products.ingredients,
-        usageInstructions: products.usageInstructions,
-        imageUrl: products.imageUrl,
-        imageGallery: products.imageGallery,
-        stockQuantity: products.stockQuantity,
-        isActive: products.isActive,
-        isFeatured: products.isFeatured,
-        metaTitle: products.metaTitle,
-        metaDescription: products.metaDescription,
-        createdAt: products.createdAt,
-        updatedAt: products.updatedAt,
-      })
-      .from(products)
-      .where(and(...conditions));
+    // Determine sorting
+    const orderColumn =
+      sortBy === 'price'
+        ? products.price
+        : sortBy === 'strength'
+          ? products.nicotineStrength
+          : products.name;
 
-    // Apply category filter if specified
+    const orderFunc = sortOrder === 'desc' ? desc : asc;
+
+    // Build the query with or without category filter
+    let allProducts;
+
     if (categorySlug) {
-      query = db
+      allProducts = await db
         .select({
           id: products.id,
           name: products.name,
@@ -104,29 +88,39 @@ export async function GET(request: NextRequest) {
           eq(products.id, productCategories.productId)
         )
         .innerJoin(categories, eq(productCategories.categoryId, categories.id))
-        .where(
-          and(...conditions, eq(categories.slug, categorySlug))
-        );
+        .where(and(...conditions, eq(categories.slug, categorySlug)))
+        .orderBy(orderFunc(orderColumn))
+        .limit(limit);
+    } else {
+      allProducts = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          slug: products.slug,
+          description: products.description,
+          price: products.price,
+          compareAtPrice: products.compareAtPrice,
+          sku: products.sku,
+          nicotineStrength: products.nicotineStrength,
+          flavor: products.flavor,
+          pouchesPerCan: products.pouchesPerCan,
+          ingredients: products.ingredients,
+          usageInstructions: products.usageInstructions,
+          imageUrl: products.imageUrl,
+          imageGallery: products.imageGallery,
+          stockQuantity: products.stockQuantity,
+          isActive: products.isActive,
+          isFeatured: products.isFeatured,
+          metaTitle: products.metaTitle,
+          metaDescription: products.metaDescription,
+          createdAt: products.createdAt,
+          updatedAt: products.updatedAt,
+        })
+        .from(products)
+        .where(and(...conditions))
+        .orderBy(orderFunc(orderColumn))
+        .limit(limit);
     }
-
-    // Apply sorting
-    const orderColumn =
-      sortBy === 'price'
-        ? products.price
-        : sortBy === 'strength'
-          ? products.nicotineStrength
-          : products.name;
-
-    query =
-      sortOrder === 'desc'
-        ? query.orderBy(desc(orderColumn))
-        : query.orderBy(asc(orderColumn));
-
-    // Apply limit
-    query = query.limit(limit);
-
-    // Execute query
-    const allProducts = await query;
 
     return NextResponse.json({
       success: true,
