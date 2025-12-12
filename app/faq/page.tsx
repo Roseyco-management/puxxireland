@@ -193,8 +193,8 @@ const orderingFAQs = [
         <ul className="list-disc pl-5 space-y-1">
           <li>
             Contact us immediately at{' '}
-            <a href="mailto:hello@puxx.ie" className="text-primary hover:underline">
-              hello@puxx.ie
+            <a href="mailto:hello@puxxnicotine.ie" className="text-primary hover:underline">
+              hello@puxxnicotine.ie
             </a>
           </li>
           <li>Include your order number</li>
@@ -458,7 +458,7 @@ const accountReturnsFAQs = [
           <Link href="/shipping" className="text-primary hover:underline">
             Shipping & Returns
           </Link>{' '}
-          page or contact us at hello@puxx.ie.
+          page or contact us at hello@puxxnicotine.ie.
         </p>
       </div>
     ),
@@ -476,8 +476,8 @@ const accountReturnsFAQs = [
         <ol className="list-decimal pl-5 space-y-2">
           <li>
             Contact us within 48 hours at{' '}
-            <a href="mailto:hello@puxx.ie" className="text-primary hover:underline">
-              hello@puxx.ie
+            <a href="mailto:hello@puxxnicotine.ie" className="text-primary hover:underline">
+              hello@puxxnicotine.ie
             </a>
           </li>
           <li>Include your order number</li>
@@ -609,7 +609,7 @@ export default function FAQPage() {
                       size="lg"
                       className="bg-white text-primary hover:bg-white/90 font-semibold"
                     >
-                      <a href="mailto:hello@puxx.ie">
+                      <a href="mailto:hello@puxxnicotine.ie">
                         <Mail className="mr-2 h-5 w-5" />
                         Email Us
                       </a>

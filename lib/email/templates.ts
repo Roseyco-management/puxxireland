@@ -236,7 +236,7 @@ export function generateAutoReplyEmail(firstName: string): string {
                       Need immediate assistance?
                     </p>
                     <p style="margin: 0 0 5px; color: #6b7280; font-size: 14px;">
-                      Email: <a href="mailto:hello@puxx.ie" style="color: #16a34a; text-decoration: none;">hello@puxx.ie</a>
+                      Email: <a href="mailto:hello@puxxnicotine.ie" style="color: #16a34a; text-decoration: none;">hello@puxxnicotine.ie</a>
                     </p>
                     <p style="margin: 0; color: #6b7280; font-size: 14px;">
                       Phone: <a href="tel:+35312345678" style="color: #16a34a; text-decoration: none;">+353 1 234 5678</a>

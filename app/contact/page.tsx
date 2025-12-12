@@ -53,10 +53,10 @@ export default function ContactPage() {
                   <div>
                     <p className="text-sm font-medium text-gray-900">Email</p>
                     <a
-                      href="mailto:hello@puxx.ie"
+                      href="mailto:hello@puxxnicotine.ie"
                       className="text-sm text-green-600 hover:text-green-700 hover:underline"
                     >
-                      hello@puxx.ie
+                      hello@puxxnicotine.ie
                     </a>
                   </div>
                 </div>

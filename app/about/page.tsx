@@ -198,10 +198,10 @@ export default function AboutPage() {
               <p className="text-muted-foreground mb-4">Saturday: 10:00 AM - 4:00 PM IST</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
-                  href="mailto:hello@puxx.ie"
+                  href="mailto:hello@puxxnicotine.ie"
                   className="text-primary hover:underline font-medium"
                 >
-                  hello@puxx.ie
+                  hello@puxxnicotine.ie
                 </a>
                 <span className="hidden sm:inline text-muted-foreground">|</span>
                 <span className="text-foreground font-medium">+353 1 234 5678</span>

@@ -83,9 +83,9 @@ export default function PrivacyPage() {
                 </p>
                 <div className="bg-muted/50 rounded-lg p-6 not-prose mb-4">
                   <p className="text-foreground font-semibold mb-2">PUXX Ireland</p>
-                  <p className="text-muted-foreground mb-1">Email: hello@puxx.ie</p>
+                  <p className="text-muted-foreground mb-1">Email: hello@puxxnicotine.ie</p>
                   <p className="text-muted-foreground mb-1">
-                    Data Protection Officer: privacy@puxx.ie
+                    Data Protection Officer: privacy@puxxnicotine.ie
                   </p>
                   <p className="text-muted-foreground">Phone: +353 1 234 5678</p>
                 </div>
@@ -265,7 +265,7 @@ export default function PrivacyPage() {
                 </h3>
                 <ul className="list-disc pl-6 text-muted-foreground mb-4 space-y-2">
                   <li>
-                    <strong className="text-foreground">Payment Processors:</strong> Stripe, PayPal
+                    <strong className="text-foreground">Payment Processors:</strong> Worldpay (payment processing)
                     (for secure payment processing)
                   </li>
                   <li>
@@ -342,7 +342,7 @@ export default function PrivacyPage() {
                   </li>
                 </ul>
                 <p className="text-muted-foreground">
-                  To exercise these rights, contact us at privacy@puxx.ie. We will respond within
+                  To exercise these rights, contact us at privacy@puxxnicotine.ie. We will respond within
                   30 days.
                 </p>
               </section>
@@ -440,7 +440,7 @@ export default function PrivacyPage() {
                 <p className="text-muted-foreground">
                   If we discover we have inadvertently collected data from someone under 18, we
                   will delete it immediately. If you believe we have collected data from a minor,
-                  please contact us at privacy@puxx.ie.
+                  please contact us at privacy@puxxnicotine.ie.
                 </p>
               </section>
 
@@ -472,8 +472,8 @@ export default function PrivacyPage() {
                 </p>
                 <div className="bg-muted/50 rounded-lg p-6 not-prose mb-4">
                   <p className="text-foreground font-semibold mb-2">PUXX Ireland - Data Protection</p>
-                  <p className="text-muted-foreground mb-1">Email: privacy@puxx.ie</p>
-                  <p className="text-muted-foreground mb-1">General Inquiries: hello@puxx.ie</p>
+                  <p className="text-muted-foreground mb-1">Email: privacy@puxxnicotine.ie</p>
+                  <p className="text-muted-foreground mb-1">General Inquiries: hello@puxxnicotine.ie</p>
                   <p className="text-muted-foreground mb-1">Phone: +353 1 234 5678</p>
                   <p className="text-muted-foreground">Response Time: Within 30 days</p>
                 </div>

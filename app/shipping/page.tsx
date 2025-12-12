@@ -57,7 +57,7 @@ const returnSteps = [
   {
     step: 1,
     title: 'Contact Us',
-    description: 'Email hello@puxx.ie within 30 days of delivery',
+    description: 'Email hello@puxxnicotine.ie within 30 days of delivery',
   },
   {
     step: 2,
@@ -381,7 +381,7 @@ export default function ShippingPage() {
                     <span className="mr-2">1.</span>
                     <span>
                       Contact us within 48 hours of delivery at{' '}
-                      <strong className="text-white">hello@puxx.ie</strong>
+                      <strong className="text-white">hello@puxxnicotine.ie</strong>
                     </span>
                   </li>
                   <li className="flex items-start">
@@ -402,7 +402,7 @@ export default function ShippingPage() {
                   size="lg"
                   className="bg-white text-primary hover:bg-white/90 font-semibold"
                 >
-                  <Link href="mailto:hello@puxx.ie">Contact Support</Link>
+                  <Link href="mailto:hello@puxxnicotine.ie">Contact Support</Link>
                 </Button>
               </div>
             </div>
@@ -421,7 +421,7 @@ export default function ShippingPage() {
                 <Link href="/faq">View FAQs</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link href="mailto:hello@puxx.ie">Email Support</Link>
+                <Link href="mailto:hello@puxxnicotine.ie">Email Support</Link>
               </Button>
             </div>
           </div>

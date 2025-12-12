@@ -224,7 +224,7 @@ export default function TermsPage() {
                 </p>
                 <p className="text-muted-foreground">
                   If you receive damaged or defective products, please contact us within 48 hours
-                  of delivery at hello@puxx.ie with photos of the damage. We will arrange a
+                  of delivery at hello@puxxnicotine.ie with photos of the damage. We will arrange a
                   replacement or full refund at no cost to you.
                 </p>
               </section>
@@ -321,7 +321,7 @@ export default function TermsPage() {
                 </p>
                 <div className="bg-muted/50 rounded-lg p-6 not-prose">
                   <p className="text-foreground font-semibold mb-2">PUXX Ireland</p>
-                  <p className="text-muted-foreground mb-1">Email: hello@puxx.ie</p>
+                  <p className="text-muted-foreground mb-1">Email: hello@puxxnicotine.ie</p>
                   <p className="text-muted-foreground mb-1">Phone: +353 1 234 5678</p>
                   <p className="text-muted-foreground">
                     Customer Service Hours: Monday-Friday 9:00 AM - 6:00 PM IST
