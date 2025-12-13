@@ -16,6 +16,10 @@ export default async function AddressesPage() {
     redirect('/sign-in');
   }
 
+  if (!db) {
+    throw new Error('Database not configured');
+  }
+
   // Get user addresses
   const userAddresses = await db
     .select()

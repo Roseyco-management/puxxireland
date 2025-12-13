@@ -1,206 +1,327 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useCheckoutStore } from '@/lib/stores/checkout-store';
-import { useCartStore } from '@/lib/store/cart-store';
-import { CheckoutProgress } from '@/components/checkout/CheckoutProgress';
-import { Step1CartReview } from '@/components/checkout/Step1CartReview';
-import { Step2CustomerInfo } from '@/components/checkout/Step2CustomerInfo';
-import { Step3ShippingAddress } from '@/components/checkout/Step3ShippingAddress';
-import { Step4ShippingMethod } from '@/components/checkout/Step4ShippingMethod';
-import { Step5Payment } from '@/components/checkout/Step5Payment';
-import { Step6Confirmation } from '@/components/checkout/Step6Confirmation';
-import { ShoppingBag, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { trackBeginCheckout, trackCheckoutProgress } from '@/lib/analytics/google-analytics';
+import Image from 'next/image';
+import { ArrowLeft, Package, CreditCard, Truck, Lock, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+interface CartItem {
+  productId: number;
+  name: string;
+  price: string;
+  imageUrl: string | null;
+  quantity: number;
+  nicotineStrength: string | null;
+  flavor: string | null;
+}
 
 export default function CheckoutPage() {
-  const { currentStep, setCurrentStep } = useCheckoutStore();
-  const items = useCartStore((state) => state.items);
-  const getTotal = useCartStore((state) => state.getTotal);
-  const [mounted, setMounted] = useState(false);
-  const [hasTrackedBeginCheckout, setHasTrackedBeginCheckout] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentStep, setCurrentStep] = useState(1);
 
-  // Handle hydration
+  // Load cart
   useEffect(() => {
-    setMounted(true);
+    try {
+      const existingCart = localStorage.getItem('puxx_cart');
+      if (existingCart) {
+        setCartItems(JSON.parse(existingCart));
+      }
+    } catch (error) {
+      console.error('Error loading cart:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // Track begin_checkout when page loads (only once)
-  useEffect(() => {
-    if (mounted && items.length > 0 && !hasTrackedBeginCheckout) {
-      const cartItems = items.map(item => ({
-        id: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-        category: 'Nicotine Pouches',
-        variant: item.product.nicotineStrength || undefined,
-      }));
+  // Calculate totals
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + parseFloat(item.price) * item.quantity,
+    0
+  );
+  const shipping = subtotal >= 150 ? 0 : 5.99;
+  const total = subtotal + shipping;
 
-      trackBeginCheckout(cartItems, getTotal());
-      setHasTrackedBeginCheckout(true);
-    }
-  }, [mounted, items, getTotal, hasTrackedBeginCheckout]);
-
-  // Track checkout progress when step changes
-  useEffect(() => {
-    if (!mounted) return;
-
-    const stepNames = [
-      'Cart Review',
-      'Customer Info',
-      'Shipping Address',
-      'Shipping Method',
-      'Payment',
-      'Confirmation',
-    ];
-
-    if (currentStep > 0 && currentStep <= stepNames.length) {
-      trackCheckoutProgress(currentStep, stepNames[currentStep - 1]);
-    }
-  }, [currentStep, mounted]);
-
-  const handleNext = () => {
-    setCurrentStep(currentStep + 1);
-    // Scroll to top on step change
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handlePrevious = () => {
-    setCurrentStep(currentStep - 1);
-    // Scroll to top on step change
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1CartReview onNext={handleNext} />;
-      case 2:
-        return (
-          <Step2CustomerInfo onNext={handleNext} onPrevious={handlePrevious} />
-        );
-      case 3:
-        return (
-          <Step3ShippingAddress
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
-        );
-      case 4:
-        return (
-          <Step4ShippingMethod onNext={handleNext} onPrevious={handlePrevious} />
-        );
-      case 5:
-        return <Step5Payment onNext={handleNext} onPrevious={handlePrevious} />;
-      case 6:
-        return <Step6Confirmation />;
-      default:
-        return <Step1CartReview onNext={handleNext} />;
-    }
-  };
-
-  // Show loading state during hydration
-  if (!mounted) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-muted/30">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
-              <p className="text-lg text-muted-foreground">Loading checkout...</p>
-            </div>
-          </div>
+      <main className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+          <p className="text-lg text-muted-foreground">Loading checkout...</p>
         </div>
-      </div>
+      </main>
+    );
+  }
+
+  // Redirect if cart is empty
+  if (cartItems.length === 0) {
+    return (
+      <main className="min-h-screen bg-background">
+        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+          <h1 className="text-3xl font-heading mb-4">Your cart is empty</h1>
+          <p className="text-muted-foreground mb-8">
+            Add some products before proceeding to checkout
+          </p>
+          <Button asChild size="lg" className="gradient-emerald">
+            <Link href="/products">Browse Products</Link>
+          </Button>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <header className="bg-white border-b shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
-                <ShoppingBag className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-heading text-foreground">
-                  PUXX Ireland
-                </h1>
-                <p className="text-xs text-muted-foreground">Secure Checkout</p>
-              </div>
+    <main className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 pb-6 border-b-2">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-heading mb-2">Checkout</h1>
+            <p className="text-muted-foreground">Complete your purchase securely</p>
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/cart">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Cart
             </Link>
+          </Button>
+        </div>
 
-            {/* Back to Shop Link */}
-            {currentStep < 6 && (
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/products" className="flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Back to Shop</span>
-                </Link>
-              </Button>
-            )}
+        {/* Progress Steps */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            {[
+              { num: 1, label: 'Information', icon: Package },
+              { num: 2, label: 'Shipping', icon: Truck },
+              { num: 3, label: 'Payment', icon: CreditCard },
+            ].map((step, index) => (
+              <div key={step.num} className="flex items-center flex-1">
+                <div className="flex flex-col items-center flex-1">
+                  <div
+                    className={`flex items-center justify-center h-12 w-12 rounded-full border-2 transition-colors ${
+                      currentStep >= step.num
+                        ? 'bg-primary border-primary text-white'
+                        : 'bg-white border-muted-foreground/30 text-muted-foreground'
+                    }`}
+                  >
+                    {currentStep > step.num ? (
+                      <CheckCircle className="h-6 w-6" />
+                    ) : (
+                      <step.icon className="h-6 w-6" />
+                    )}
+                  </div>
+                  <p className="text-xs sm:text-sm font-medium mt-2 text-center">
+                    {step.label}
+                  </p>
+                </div>
+                {index < 2 && (
+                  <div
+                    className={`h-0.5 flex-1 transition-colors ${
+                      currentStep > step.num ? 'bg-primary' : 'bg-muted-foreground/30'
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        {/* Progress Indicator */}
-        {currentStep < 6 && (
-          <div className="mb-12">
-            <CheckoutProgress currentStep={currentStep} totalSteps={6} />
-          </div>
-        )}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Checkout Form */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl border-2 shadow-lg p-6 lg:p-8">
+              <h2 className="text-2xl font-heading mb-6">Contact & Shipping Information</h2>
 
-        {/* Step Content */}
-        <div className="mb-8">{renderStep()}</div>
-      </main>
+              <form className="space-y-6">
+                {/* Contact Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-xs font-bold text-primary">1</span>
+                    </div>
+                    Contact Information
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" placeholder="your@email.com" required />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input id="phone" type="tel" placeholder="+353 ..." required />
+                    </div>
+                  </div>
+                </div>
 
-      {/* Footer */}
-      <footer className="bg-white border-t mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-center md:text-left">
-              <p className="text-sm text-muted-foreground">
-                &copy; {new Date().getFullYear()} PUXX Ireland. All rights reserved.
-              </p>
+                {/* Shipping Address */}
+                <div className="space-y-4 pt-6 border-t">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-xs font-bold text-primary">2</span>
+                    </div>
+                    Shipping Address
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input id="firstName" required />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input id="lastName" required />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="address">Address</Label>
+                    <Input id="address" placeholder="Street address" required />
+                  </div>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input id="city" required />
+                    </div>
+                    <div>
+                      <Label htmlFor="county">County</Label>
+                      <Input id="county" placeholder="e.g., Dublin" required />
+                    </div>
+                    <div>
+                      <Label htmlFor="eircode">Eircode</Label>
+                      <Input id="eircode" placeholder="Optional" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Shipping Method */}
+                <div className="space-y-4 pt-6 border-t">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-xs font-bold text-primary">3</span>
+                    </div>
+                    Shipping Method
+                  </h3>
+                  <div className="space-y-3">
+                    <label className="flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors">
+                      <div className="flex items-center gap-3">
+                        <input type="radio" name="shipping" value="standard" defaultChecked />
+                        <div>
+                          <p className="font-semibold">Standard Shipping</p>
+                          <p className="text-sm text-muted-foreground">3-5 business days</p>
+                        </div>
+                      </div>
+                      <span className="font-bold">€5.99</span>
+                    </label>
+                    <label className="flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors">
+                      <div className="flex items-center gap-3">
+                        <input type="radio" name="shipping" value="express" />
+                        <div>
+                          <p className="font-semibold">Express Shipping</p>
+                          <p className="text-sm text-muted-foreground">1-2 business days</p>
+                        </div>
+                      </div>
+                      <span className="font-bold">€9.99</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Proceed to Payment Button */}
+                <div className="pt-6">
+                  <Button type="submit" size="lg" className="w-full gradient-emerald text-lg">
+                    <Lock className="mr-2 h-5 w-5" />
+                    Proceed to Payment
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground mt-3">
+                    Your payment information is encrypted and secure
+                  </p>
+                </div>
+              </form>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
-              <Link
-                href="/terms"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="/privacy"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/shipping"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Shipping Info
-              </Link>
-              <Link
-                href="/contact"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Contact Us
-              </Link>
+          </div>
+
+          {/* Order Summary Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-6">
+              {/* Order Summary */}
+              <div className="bg-white rounded-xl border-2 shadow-lg p-6">
+                <h2 className="text-lg font-heading mb-4">Order Summary</h2>
+
+                {/* Items */}
+                <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
+                  {cartItems.map((item) => (
+                    <div key={item.productId} className="flex gap-3">
+                      <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                        {item.imageUrl ? (
+                          <Image
+                            src={item.imageUrl}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <Package className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
+                          {item.quantity}
+                        </div>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <p className="font-medium text-sm truncate">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">{item.nicotineStrength}</p>
+                        <p className="text-sm font-semibold mt-1">
+                          €{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Totals */}
+                <div className="space-y-3 border-t pt-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-semibold">€{subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="font-semibold">
+                      {shipping === 0 ? (
+                        <span className="text-primary">FREE</span>
+                      ) : (
+                        `€${shipping.toFixed(2)}`
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t-2 pt-3">
+                    <span>Total</span>
+                    <span className="text-primary">€{total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Trust Badges */}
+              <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-3 text-sm">
+                  <Lock className="h-5 w-5 text-primary flex-shrink-0" />
+                  <span className="text-muted-foreground">Secure SSL encryption</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                  <span className="text-muted-foreground">30-day return policy</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <Truck className="h-5 w-5 text-primary flex-shrink-0" />
+                  <span className="text-muted-foreground">Free shipping over €150</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

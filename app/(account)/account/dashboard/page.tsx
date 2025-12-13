@@ -20,6 +20,10 @@ export default async function DashboardPage() {
     redirect('/sign-in');
   }
 
+  if (!db) {
+    throw new Error('Database not configured');
+  }
+
   // Get user profile
   const userProfile = await db
     .select()
@@ -35,9 +39,10 @@ export default async function DashboardPage() {
     .orderBy(desc(orders.createdAt));
 
   // Get recent orders with items
+  const database = db; // Capture db reference for TypeScript
   const recentOrders = await Promise.all(
     allOrders.slice(0, 3).map(async (order) => {
-      const items = await db
+      const items = await database
         .select()
         .from(orderItems)
         .where(eq(orderItems.orderId, order.id));

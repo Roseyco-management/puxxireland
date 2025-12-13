@@ -6,7 +6,7 @@ import { SubscriberTable } from "@/components/admin/marketing/SubscriberTable";
 import { toast } from "sonner";
 
 export default function SubscribersPage() {
-  const [subscribers, setSubscribers] = useState([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

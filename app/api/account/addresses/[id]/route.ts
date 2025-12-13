@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { addresses } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
@@ -20,6 +20,7 @@ export async function GET(request: Request, context: RouteContext) {
 
     const { id } = await context.params;
     const addressId = parseInt(id);
+    const db = getDb();
 
     const address = await db
       .select()
@@ -51,6 +52,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
     const { id } = await context.params;
     const addressId = parseInt(id);
+    const db = getDb();
 
     const body = await request.json();
     const {
@@ -141,6 +143,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
     const { id } = await context.params;
     const addressId = parseInt(id);
+    const db = getDb();
 
     // Verify address belongs to user
     const existingAddress = await db

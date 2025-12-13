@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { addresses } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
@@ -12,6 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const db = getDb();
     const userAddresses = await db
       .select()
       .from(addresses)
@@ -34,6 +35,8 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const db = getDb();
 
     const body = await request.json();
     const {

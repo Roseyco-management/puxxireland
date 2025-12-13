@@ -17,11 +17,11 @@ export default function AdminDashboard() {
     todayCustomers: 0,
     lowStockCount: 0,
   });
-  const [revenueData, setRevenueData] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [lowStockProducts, setLowStockProducts] = useState([]);
-  const [categoryData, setCategoryData] = useState([]);
+  const [revenueData, setRevenueData] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

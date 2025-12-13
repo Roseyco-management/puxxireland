@@ -6,7 +6,7 @@ import { CustomerTable } from "@/components/admin/customers/CustomerTable";
 import { toast } from "sonner";
 
 export default function CustomersPage() {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isGuestFilter, setIsGuestFilter] = useState("all");

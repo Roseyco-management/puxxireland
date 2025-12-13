@@ -24,6 +24,7 @@ interface Product {
   flavor: string | null;
   imageUrl: string | null;
   stockQuantity: number;
+  sku: string | null;
 }
 
 async function getFeaturedProducts(): Promise<Product[]> {

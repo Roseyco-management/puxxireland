@@ -33,5 +33,13 @@ if (isValidDatabaseUrl(process.env.POSTGRES_URL)) {
   );
 }
 
+// Helper function to get db and throw if not configured
+export function getDb() {
+  if (!db) {
+    throw new Error('Database not configured. Please set POSTGRES_URL in your environment variables.');
+  }
+  return db;
+}
+
 // Export with type assertion - consumers should check for null
 export { client, db };

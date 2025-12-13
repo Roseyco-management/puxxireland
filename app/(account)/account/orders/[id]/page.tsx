@@ -26,6 +26,10 @@ export default async function OrderDetailsPage({ params }: OrderDetailsPageProps
     redirect('/sign-in');
   }
 
+  if (!db) {
+    throw new Error('Database not configured');
+  }
+
   // Get order
   const orderResult = await db
     .select()

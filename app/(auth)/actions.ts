@@ -37,6 +37,10 @@ const signInSchema = z.object({
 export const signIn = validatedAction(signInSchema, async (data, formData) => {
   const { email, password } = data;
 
+  if (!db) {
+    throw new Error('Database not configured');
+  }
+
   // Find user by email
   const userResult = await db
     .select()
@@ -117,6 +121,10 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
     marketingConsent,
     termsAccepted,
   } = data;
+
+  if (!db) {
+    throw new Error('Database not configured');
+  }
 
   // Check if terms are accepted
   if (termsAccepted !== 'on') {
@@ -201,6 +209,10 @@ export const requestPasswordReset = validatedAction(
   requestPasswordResetSchema,
   async (data) => {
     const { email } = data;
+
+    if (!db) {
+      throw new Error('Database not configured');
+    }
 
     // Check if user exists
     const userResult = await db

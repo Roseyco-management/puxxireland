@@ -16,6 +16,10 @@ export default async function OrdersPage() {
     redirect('/sign-in');
   }
 
+  if (!db) {
+    throw new Error('Database not configured');
+  }
+
   // Get all user orders with items count
   const userOrders = await db
     .select()
@@ -23,9 +27,10 @@ export default async function OrdersPage() {
     .where(eq(orders.userId, user.id))
     .orderBy(desc(orders.createdAt));
 
+  const database = db; // Capture db reference for TypeScript
   const ordersWithItems = await Promise.all(
     userOrders.map(async (order) => {
-      const items = await db
+      const items = await database
         .select()
         .from(orderItems)
         .where(eq(orderItems.orderId, order.id));

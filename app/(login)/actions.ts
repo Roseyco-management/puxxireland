@@ -35,6 +35,9 @@ async function logActivity(
   if (teamId === null || teamId === undefined) {
     return;
   }
+  if (!db) {
+    return;
+  }
   const newActivity: NewActivityLog = {
     teamId,
     userId,
@@ -51,6 +54,10 @@ const signInSchema = z.object({
 
 export const signIn = validatedAction(signInSchema, async (data, formData) => {
   const { email, password } = data;
+
+  if (!db) {
+    throw new Error('Database not configured');
+  }
 
   const userWithTeam = await db
     .select({
@@ -108,6 +115,10 @@ const signUpSchema = z.object({
 
 export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   const { email, password, inviteId } = data;
+
+  if (!db) {
+    throw new Error('Database not configured');
+  }
 
   const existingUser = await db
     .select()
@@ -239,6 +250,10 @@ export const updatePassword = validatedActionWithUser(
   async (data, _, user) => {
     const { currentPassword, newPassword, confirmPassword } = data;
 
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+
     const isPasswordValid = await comparePasswords(
       currentPassword,
       user.passwordHash
@@ -297,6 +312,10 @@ export const deleteAccount = validatedActionWithUser(
   async (data, _, user) => {
     const { password } = data;
 
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+
     const isPasswordValid = await comparePasswords(password, user.passwordHash);
     if (!isPasswordValid) {
       return {
@@ -347,6 +366,11 @@ export const updateAccount = validatedActionWithUser(
   updateAccountSchema,
   async (data, _, user) => {
     const { name, email } = data;
+
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+
     const userWithTeam = await getUserWithTeam(user.id);
 
     await Promise.all([
@@ -366,6 +390,11 @@ export const removeTeamMember = validatedActionWithUser(
   removeTeamMemberSchema,
   async (data, _, user) => {
     const { memberId } = data;
+
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+
     const userWithTeam = await getUserWithTeam(user.id);
 
     if (!userWithTeam?.teamId) {
@@ -400,6 +429,11 @@ export const inviteTeamMember = validatedActionWithUser(
   inviteTeamMemberSchema,
   async (data, _, user) => {
     const { email, role } = data;
+
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+
     const userWithTeam = await getUserWithTeam(user.id);
 
     if (!userWithTeam?.teamId) {

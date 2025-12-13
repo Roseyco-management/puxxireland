@@ -17,6 +17,10 @@ export default async function AccountLayout({
     redirect('/sign-in');
   }
 
+  if (!db) {
+    throw new Error('Database not configured');
+  }
+
   // Get user profile
   const userProfile = await db
     .select()
