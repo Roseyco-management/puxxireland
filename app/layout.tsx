@@ -8,6 +8,8 @@ import { baseMetadata } from '@/lib/seo/metadata';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { MicrosoftClarity } from '@/components/analytics/MicrosoftClarity';
+import { PublicLayout } from '@/components/layout/PublicLayout';
+import { AgeGate } from '@/components/age-verification/AgeGate';
 
 export const metadata: Metadata = baseMetadata;
 
@@ -47,20 +49,22 @@ export default function RootLayout({
         <MicrosoftClarity />
       </head>
       <body className="min-h-[100dvh] bg-background font-sans antialiased">
-        <ToastProvider>
-          <SWRConfig
-            value={{
-              fallback: {
-                // We do NOT await here
-                // Only components that read this data will suspend
-                '/api/user': getUser(),
-                '/api/team': getTeamForUser()
-              }
-            }}
-          >
-            {children}
-          </SWRConfig>
-        </ToastProvider>
+        <AgeGate>
+          <ToastProvider>
+            <SWRConfig
+              value={{
+                fallback: {
+                  // We do NOT await here
+                  // Only components that read this data will suspend
+                  '/api/user': getUser(),
+                  '/api/team': getTeamForUser()
+                }
+              }}
+            >
+              <PublicLayout>{children}</PublicLayout>
+            </SWRConfig>
+          </ToastProvider>
+        </AgeGate>
       </body>
     </html>
   );

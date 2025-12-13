@@ -1,14 +1,8 @@
-import { Metadata } from 'next';
+'use client';
+
 import { PageHeader } from '@/components/static-pages/page-header';
 import { Breadcrumbs } from '@/components/static-pages/breadcrumbs';
 import { TableOfContents } from '@/components/static-pages/table-of-contents';
-
-export const metadata: Metadata = {
-  title: 'Privacy Policy | PUXX Ireland',
-  description:
-    'Read PUXX Ireland\'s GDPR-compliant privacy policy. Learn how we collect, use, and protect your personal data.',
-  robots: 'index, follow',
-};
 
 const tocItems = [
   { id: 'introduction', title: 'Introduction' },

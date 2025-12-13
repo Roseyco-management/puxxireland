@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { ContactForm } from '@/components/contact/contact-form';
 import { Mail, Phone, Clock, MapPin, MessageSquare, Headphones, Users } from 'lucide-react';
 
@@ -13,31 +14,44 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-primary via-green-600 to-green-700">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+      <section className="relative py-24 lg:py-40 overflow-hidden min-h-[500px] lg:min-h-[600px]">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/hero/hero-banner.jpg"
+            alt="Contact PUXX Ireland - Premium Nicotine Pouch Support"
+            fill
+            priority
+            className="object-cover object-center"
+            quality={90}
+            sizes="100vw"
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-heading tracking-tight text-white leading-[1.1] mb-6">
-              Get in <span className="font-black">Touch</span>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="text-center w-full">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-heading tracking-tight text-white leading-[1.1] mb-8">
+              Contact <span className="text-green-400">PUXX</span>
             </h1>
-            <p className="mt-6 text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium">
+            <p className="mt-8 text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium">
               Have questions? We're here to help you find the perfect nicotine pouches
             </p>
-            <div className="mt-8 flex items-center justify-center gap-8 text-white/90">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                <span className="text-sm sm:text-base">24hr Response</span>
+
+            {/* Trust indicators */}
+            <div className="mt-16 flex flex-wrap items-center gap-8 justify-center text-base lg:text-lg text-white/90">
+              <div className="flex items-center gap-3">
+                <Clock className="h-6 w-6 text-white" />
+                <span className="font-medium">24hr Response</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                <span className="text-sm sm:text-base">Expert Support</span>
+              <div className="flex items-center gap-3">
+                <Mail className="h-6 w-6 text-white" />
+                <span className="font-medium">Expert Support</span>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                <span className="text-sm sm:text-base">Ireland-Based</span>
+              <div className="flex items-center gap-3">
+                <MapPin className="h-6 w-6 text-white" />
+                <span className="font-medium">Ireland-Based</span>
               </div>
             </div>
           </div>

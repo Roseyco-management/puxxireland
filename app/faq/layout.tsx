@@ -1,12 +1,14 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Frequently Asked Questions | PUXX Ireland',
+  title: 'FAQ - Frequently Asked Questions | PUXX Ireland Nicotine Pouches',
   description:
-    'Find answers to common questions about PUXX Ireland nicotine pouches, ordering, shipping, and more.',
+    'Get answers to all your questions about PUXX nicotine pouches. Learn about products, usage, safety, shipping, returns, age verification, and more. Expert support for Irish customers.',
+  keywords: 'nicotine pouches FAQ, PUXX questions, tobacco-free pouches Ireland, nicotine pouch safety, shipping Ireland, age verification',
   openGraph: {
-    title: 'FAQ - PUXX Ireland',
-    description: 'Get answers to your questions about nicotine pouches',
+    title: 'FAQ - PUXX Ireland Nicotine Pouches',
+    description: 'Comprehensive answers to all your questions about nicotine pouches, ordering, and delivery in Ireland',
+    type: 'website',
   },
 };
 

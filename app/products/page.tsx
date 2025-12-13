@@ -13,8 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, SlidersHorizontal, ArrowUpDown, X, ShoppingBag, Package } from 'lucide-react';
-import Image from 'next/image';
+import { Search, SlidersHorizontal, ArrowUpDown, X, ShoppingBag, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 // Flavor category mapping
 const FLAVOR_CATEGORIES = {
@@ -146,7 +146,7 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted/30">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -160,247 +160,255 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-irish py-16 lg:py-24">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-background">
+      {/* Video Hero Section */}
+      <section className="relative overflow-hidden bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          {/* Skip to Products Button */}
+          <div className="text-center mb-8">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black backdrop-blur-sm text-base px-8 transition-all"
+            >
+              <Link href="#shop">
+                Skip to All Products →
+              </Link>
+            </Button>
+          </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            {/* Icon */}
-            <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-white/10 backdrop-blur-sm mb-6">
-              <Package className="h-10 w-10 text-white" />
+          {/* Video Cards */}
+          <div className="grid md:grid-cols-2 gap-4 lg:gap-6">
+            {/* Grape Video */}
+            <div className="group relative aspect-[9/16] md:aspect-[9/14] rounded-2xl overflow-hidden shadow-2xl">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              >
+                <source src="/videos/Puxx Grape Video.mp4" type="video/mp4" />
+              </video>
+
+              {/* Overlay with CTA */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
+                <div className="text-center">
+                  <h3 className="text-3xl lg:text-4xl font-heading text-white mb-3 drop-shadow-lg">
+                    Bold Grape Flavor
+                  </h3>
+                  <p className="text-white/90 mb-5 text-base lg:text-lg drop-shadow-md">
+                    Intense & Smooth
+                  </p>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full bg-white text-purple-900 hover:bg-white/90 font-bold shadow-xl text-base"
+                  >
+                    <Link href="/products#shop" onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' });
+                      setTimeout(() => {
+                        const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+                        if (searchInput) {
+                          searchInput.value = 'grape';
+                          searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                      }, 500);
+                    }}>
+                      Explore Grape →
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Shimmer effect on hover */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
             </div>
 
-            {/* Title */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading tracking-tight text-white leading-tight mb-6">
-              Premium Nicotine Pouches
-              <br />
-              <span className="text-5xl sm:text-6xl lg:text-7xl font-black mt-2 inline-block">
-                14 Delicious Flavors
-              </span>
-            </h1>
+            {/* Strawberry Video */}
+            <div className="group relative aspect-[9/16] md:aspect-[9/14] rounded-2xl overflow-hidden shadow-2xl">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              >
+                <source src="/videos/Puxx Strawberry Video.mp4" type="video/mp4" />
+              </video>
 
-            {/* Description */}
-            <p className="text-xl sm:text-2xl text-white/90 max-w-3xl mx-auto mb-8">
-              Tobacco-free satisfaction delivered across Ireland. All products €15.00 with fast, reliable shipping.
-            </p>
+              {/* Overlay with CTA */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-            {/* Quick Stats */}
-            <div className="flex flex-wrap items-center gap-6 lg:gap-8 justify-center text-base lg:text-lg text-white/90">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-white" />
-                <span className="font-medium">100% Tobacco-Free</span>
+              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
+                <div className="text-center">
+                  <h3 className="text-3xl lg:text-4xl font-heading text-white mb-3 drop-shadow-lg">
+                    Sweet Strawberry
+                  </h3>
+                  <p className="text-white/90 mb-5 text-base lg:text-lg drop-shadow-md">
+                    Fresh & Fruity
+                  </p>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full bg-white text-pink-900 hover:bg-white/90 font-bold shadow-xl text-base"
+                  >
+                    <Link href="/products#shop" onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' });
+                      setTimeout(() => {
+                        const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+                        if (searchInput) {
+                          searchInput.value = 'strawberry';
+                          searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                      }, 500);
+                    }}>
+                      Explore Strawberry →
+                    </Link>
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-white" />
-                <span className="font-medium">Premium Quality</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-white" />
-                <span className="font-medium">Fast Delivery</span>
-              </div>
+
+              {/* Shimmer effect on hover */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar filters - Desktop */}
-          <aside className="hidden lg:block lg:w-72 flex-shrink-0">
-            <div className="sticky top-8">
-              {/* Filter Header */}
-              <div className="bg-white rounded-xl border shadow-sm p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-heading text-foreground">Filter Products</h2>
-                  <SlidersHorizontal className="h-5 w-5 text-primary" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Refine your search to find your perfect nicotine pouch
-                </p>
-              </div>
-
-              {/* Filters */}
-              <ProductFilters
-                filters={filters}
-                onFilterChange={setFilters}
-                onClearFilters={handleClearFilters}
-              />
-            </div>
-          </aside>
-
-          {/* Main content */}
-          <div className="flex-1 min-w-0">
-            {/* Search and Sort bar */}
-            <div className="bg-white rounded-xl border shadow-sm p-4 lg:p-6 mb-6">
-              <div className="flex flex-col sm:flex-row gap-4">
-                {/* Search */}
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Search by name, flavor, or strength..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-11 text-base"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Mobile filter button */}
-                <Button
-                  variant="outline"
-                  onClick={() => setShowMobileFilters(!showMobileFilters)}
-                  className="lg:hidden h-11"
-                >
-                  <SlidersHorizontal className="mr-2 h-4 w-4" />
-                  Filters
-                </Button>
-
-                {/* Sort dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="min-w-[200px] h-11">
-                      <ArrowUpDown className="mr-2 h-4 w-4" />
-                      {getSortLabel()}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[220px]">
-                    {SORT_OPTIONS.map((option) => (
-                      <DropdownMenuItem
-                        key={option.value}
-                        onClick={() => setSortBy(option.value)}
-                        className="cursor-pointer"
-                      >
-                        {option.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* Mobile filters */}
-              {showMobileFilters && (
-                <div className="lg:hidden mt-6 pt-6 border-t">
+      {/* Main Shop Section */}
+      <div id="shop" className="bg-gradient-to-b from-background to-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Sidebar filters - Desktop Only */}
+            <aside className="hidden lg:block lg:w-64 flex-shrink-0">
+              <div className="sticky top-24">
+                <div className="bg-white rounded-xl border shadow-md p-5">
+                  <h2 className="text-lg font-heading mb-4 flex items-center gap-2">
+                    <SlidersHorizontal className="h-5 w-5 text-primary" />
+                    Filters
+                  </h2>
                   <ProductFilters
                     filters={filters}
                     onFilterChange={setFilters}
                     onClearFilters={handleClearFilters}
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            </aside>
 
-            {/* Results count and active filters */}
-            <div className="mb-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <p className="text-base text-muted-foreground">
-                  <span className="font-semibold text-foreground">{filteredAndSortedProducts.length}</span> of{' '}
-                  <span className="font-semibold text-foreground">{products.length}</span> products
-                </p>
+            {/* Main content */}
+            <div className="flex-1 min-w-0">
+              {/* Compact Controls */}
+              <div className="flex flex-col gap-3 mb-6">
+                {/* Search bar */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search flavors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 h-11"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
 
-                {/* Active filter badges */}
-                {(filters.strength || filters.flavorCategory || filters.featured || searchQuery) && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    {searchQuery && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
-                        Search: "{searchQuery}"
-                        <button onClick={() => setSearchQuery('')} className="hover:bg-primary/20 rounded-full p-0.5">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    )}
-                    {filters.strength && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
-                        {filters.strength}
-                        <button
-                          onClick={() => setFilters({ ...filters, strength: null })}
-                          className="hover:bg-primary/20 rounded-full p-0.5"
+                {/* Filters and Sort - Horizontal on Mobile */}
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowMobileFilters(!showMobileFilters)}
+                    className="lg:hidden flex-1"
+                  >
+                    <SlidersHorizontal className="mr-2 h-4 w-4" />
+                    Filters
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="flex-1 lg:w-auto lg:min-w-[180px]">
+                        <ArrowUpDown className="mr-2 h-4 w-4" />
+                        <span className="hidden sm:inline">{getSortLabel()}</span>
+                        <span className="sm:hidden">Sort</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                      {SORT_OPTIONS.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          onClick={() => setSortBy(option.value)}
+                          className="cursor-pointer"
                         >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    )}
-                    {filters.flavorCategory && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
-                        {filters.flavorCategory}
-                        <button
-                          onClick={() => setFilters({ ...filters, flavorCategory: null })}
-                          className="hover:bg-primary/20 rounded-full p-0.5"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    )}
-                    {filters.featured && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
-                        Featured
-                        <button
-                          onClick={() => setFilters({ ...filters, featured: false })}
-                          className="hover:bg-primary/20 rounded-full p-0.5"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    )}
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Mobile filters dropdown */}
+                {showMobileFilters && (
+                  <div className="lg:hidden bg-white rounded-xl border shadow-md p-4">
+                    <ProductFilters
+                      filters={filters}
+                      onFilterChange={setFilters}
+                      onClearFilters={handleClearFilters}
+                    />
+                  </div>
+                )}
+
+                {/* Compact results count - only show if filtering */}
+                {(searchQuery || filters.strength || filters.flavorCategory || filters.featured) && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      <span className="font-semibold text-foreground">{filteredAndSortedProducts.length}</span> results
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClearFilters}
+                      className="text-primary h-8"
+                    >
+                      Clear filters
+                    </Button>
                   </div>
                 )}
               </div>
+
+              {/* Product grid */}
+              {filteredAndSortedProducts.length > 0 ? (
+                <ProductGrid products={filteredAndSortedProducts} />
+              ) : (
+                <div className="text-center py-16 bg-white rounded-xl border">
+                  <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <h3 className="text-xl font-heading mb-2">No products found</h3>
+                  <p className="text-muted-foreground mb-6">
+                    {products.length === 0 ? 'Configure your database to see products' : 'Try different filters'}
+                  </p>
+                  {products.length > 0 && (
+                    <Button onClick={handleClearFilters} className="gradient-emerald">
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
-
-            {/* Product grid */}
-            <ProductGrid products={filteredAndSortedProducts} />
-
-            {/* Empty state with CTA */}
-            {filteredAndSortedProducts.length === 0 && products.length > 0 && (
-              <div className="mt-8 text-center">
-                <Button onClick={handleClearFilters} size="lg" className="gradient-emerald">
-                  Clear All Filters
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </div>
-
-      {/* Bottom CTA Section */}
-      <section className="py-12 lg:py-16 bg-background">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl gradient-emerald p-10 lg:p-14 text-center">
-            <div className="relative z-10">
-              <ShoppingBag className="h-12 w-12 text-white mx-auto mb-6" />
-              <h2 className="text-3xl sm:text-4xl font-heading text-white mb-4">
-                Can't Decide? Try a Variety Pack
-              </h2>
-              <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                Explore different flavors and strengths to find your favorites. Free delivery on orders over €150.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 text-lg">
-                  <a href="#top">
-                    Browse All Products
-                  </a>
-                </Button>
-              </div>
-            </div>
-
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

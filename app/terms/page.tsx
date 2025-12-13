@@ -1,14 +1,8 @@
-import { Metadata } from 'next';
+'use client';
+
 import { PageHeader } from '@/components/static-pages/page-header';
 import { Breadcrumbs } from '@/components/static-pages/breadcrumbs';
 import { TableOfContents } from '@/components/static-pages/table-of-contents';
-
-export const metadata: Metadata = {
-  title: 'Terms & Conditions | PUXX Ireland',
-  description:
-    'Read the terms and conditions for purchasing nicotine pouches from PUXX Ireland. Includes age restrictions, shipping policies, and legal information.',
-  robots: 'index, follow',
-};
 
 const tocItems = [
   { id: 'acceptance', title: 'Acceptance of Terms' },

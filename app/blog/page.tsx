@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { BookOpen, Clock, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { BookOpen, Clock, ArrowRight, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
@@ -34,20 +35,47 @@ export default function BlogPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-16 lg:py-24 bg-gradient-to-br from-primary via-green-600 to-emerald-600 overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+      <section className="relative py-24 lg:py-40 overflow-hidden min-h-[500px] lg:min-h-[600px]">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/marketing/puxx-banner-fruit.jpg"
+            alt="PUXX Ireland Blog - Nicotine Pouch Education & Guides"
+            fill
+            priority
+            className="object-cover object-center"
+            quality={90}
+            sizes="100vw"
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-sm mb-6">
-            <BookOpen className="h-8 w-8 text-white" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="text-center w-full">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-heading tracking-tight text-white leading-[1.1] mb-8">
+              <span className="text-green-400">PUXX</span> Blog
+            </h1>
+            <p className="mt-8 text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium">
+              Your trusted source for nicotine pouch education, guides, and insights
+            </p>
+
+            {/* Trust indicators */}
+            <div className="mt-16 flex flex-wrap items-center gap-8 justify-center text-base lg:text-lg text-white/90">
+              <div className="flex items-center gap-3">
+                <BookOpen className="h-6 w-6 text-white" />
+                <span className="font-medium">Expert Guides</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Clock className="h-6 w-6 text-white" />
+                <span className="font-medium">Latest Updates</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Users className="h-6 w-6 text-white" />
+                <span className="font-medium">Community Tips</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading tracking-tight text-white leading-tight mb-6">
-            PUXX Ireland Blog
-          </h1>
-          <p className="text-xl sm:text-2xl text-white/95 max-w-3xl mx-auto">
-            Your trusted source for nicotine pouch education, guides, and insights
-          </p>
         </div>
       </section>
 
