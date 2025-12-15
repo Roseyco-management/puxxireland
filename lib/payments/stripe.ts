@@ -7,8 +7,26 @@ import {
   updateTeamSubscription
 } from '@/lib/db/queries';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil'
+// Lazy initialize Stripe only when needed
+let stripeInstance: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!stripeInstance) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not configured');
+    }
+    stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-04-30.basil'
+    });
+  }
+  return stripeInstance;
+}
+
+// Export for backward compatibility
+export const stripe = new Proxy({} as Stripe, {
+  get: (target, prop) => {
+    const stripeClient = getStripe();
+    return stripeClient[prop as keyof Stripe];
+  }
 });
 
 export async function createCheckoutSession({

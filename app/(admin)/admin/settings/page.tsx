@@ -11,6 +11,9 @@ import {
   Globe,
 } from "lucide-react";
 
+// Force dynamic rendering to avoid useSearchParams prerender error
+export const dynamic = 'force-dynamic';
+
 const settingsCategories = [
   {
     title: "General Settings",

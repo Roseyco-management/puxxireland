@@ -7,6 +7,9 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import { Toaster } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
+// Force dynamic rendering for all admin pages
+export const dynamic = 'force-dynamic';
+
 export default function AdminLayout({
   children,
 }: {

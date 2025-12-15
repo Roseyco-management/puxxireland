@@ -6,6 +6,9 @@ import { db } from '@/lib/db/drizzle';
 import { profiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
+// Force dynamic rendering for all account pages
+export const dynamic = 'force-dynamic';
+
 export default async function AccountLayout({
   children,
 }: {

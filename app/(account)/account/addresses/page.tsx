@@ -9,6 +9,9 @@ import { AddressCard } from '@/components/account/AddressCard';
 import { AddAddressButton } from '@/components/account/AddAddressButton';
 import { MapPin, Plus } from 'lucide-react';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default async function AddressesPage() {
   const user = await getUser();
 

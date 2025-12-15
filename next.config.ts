@@ -1,8 +1,10 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Force all routes to be dynamic to avoid prerendering issues
+  output: 'standalone',
   experimental: {
-    ppr: true,
+    ppr: false, // Disabled PPR to fix build issues with dynamic routes
     clientSegmentCache: true
   },
   images: {

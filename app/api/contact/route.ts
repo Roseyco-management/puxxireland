@@ -3,8 +3,14 @@ import { Resend } from 'resend';
 import { z } from 'zod';
 import { generateContactEmail, generateAutoReplyEmail } from '@/lib/email/templates';
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend only when needed
+let resend: Resend | null = null;
+function getResend() {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 // Contact form schema validation
 const contactFormSchema = z.object({
@@ -128,8 +134,21 @@ export async function POST(request: NextRequest) {
     // Admin email address (fallback to environment variable or default)
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@puxx.ie';
 
+    // Get Resend client
+    const resendClient = getResend();
+    if (!resendClient) {
+      console.error('Failed to initialize Resend client');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Email service is not configured. Please contact support.',
+        },
+        { status: 500 }
+      );
+    }
+
     // Send email to admin
-    const adminEmailResult = await resend.emails.send({
+    const adminEmailResult = await resendClient.emails.send({
       from: 'PUXX Ireland Contact Form <noreply@puxx.ie>',
       to: [adminEmail],
       replyTo: email,
@@ -150,7 +169,7 @@ export async function POST(request: NextRequest) {
 
     // Send auto-reply to customer (optional, but recommended)
     try {
-      await resend.emails.send({
+      await resendClient.emails.send({
         from: 'PUXX Ireland <hello@puxx.ie>',
         to: [email],
         subject: 'Thank you for contacting PUXX Ireland',

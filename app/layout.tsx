@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Montserrat, Inter } from 'next/font/google';
+import { Suspense } from 'react';
 import { getUser, getTeamForUser } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
 import { ToastProvider } from '@/lib/utils/toast';
@@ -44,7 +45,9 @@ export default function RootLayout({
         {/* Google Analytics 4 */}
         <GoogleAnalytics />
         {/* Meta (Facebook) Pixel */}
-        <MetaPixel />
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         {/* Microsoft Clarity */}
         <MicrosoftClarity />
       </head>
