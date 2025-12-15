@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/db/queries';
-import { getDb } from '@/lib/db/drizzle';
-import { users, profiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 
 export async function GET() {
   try {
@@ -12,18 +10,19 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
     // Get user profile
-    const userProfile = await db
-      .select()
-      .from(profiles)
-      .where(eq(profiles.userId, user.id))
-      .limit(1);
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .limit(1)
+      .single();
 
     return NextResponse.json({
       user,
-      profile: userProfile[0] || null,
+      profile: userProfile || null,
     });
   } catch (error) {
     console.error('Error fetching profile:', error);
@@ -42,44 +41,44 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = getDb();
-
+    const supabase = getSupabaseClient();
     const body = await request.json();
     const { firstName, lastName, phone, marketingConsent } = body;
 
     // Update user name
     const fullName = `${firstName} ${lastName}`.trim();
-    await db
-      .update(users)
-      .set({
+    await supabase
+      .from('users')
+      .update({
         name: fullName,
-        updatedAt: new Date(),
+        updated_at: new Date().toISOString(),
       })
-      .where(eq(users.id, user.id));
+      .eq('id', user.id);
 
     // Check if profile exists
-    const existingProfile = await db
-      .select()
-      .from(profiles)
-      .where(eq(profiles.userId, user.id))
-      .limit(1);
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .limit(1)
+      .single();
 
-    if (existingProfile.length > 0) {
+    if (existingProfile) {
       // Update existing profile
-      await db
-        .update(profiles)
-        .set({
+      await supabase
+        .from('profiles')
+        .update({
           phone: phone || null,
-          marketingConsent: marketingConsent || false,
-          updatedAt: new Date(),
+          marketing_consent: marketingConsent || false,
+          updated_at: new Date().toISOString(),
         })
-        .where(eq(profiles.userId, user.id));
+        .eq('user_id', user.id);
     } else {
       // Create new profile
-      await db.insert(profiles).values({
-        userId: user.id,
+      await supabase.from('profiles').insert({
+        user_id: user.id,
         phone: phone || null,
-        marketingConsent: marketingConsent || false,
+        marketing_consent: marketingConsent || false,
       });
     }
 

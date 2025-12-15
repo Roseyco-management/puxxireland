@@ -44,19 +44,19 @@ export function AgeVerificationModal({
       <DialogContent
         allowClose={false}
         allowDismiss={false}
-        className="max-w-2xl p-0 overflow-hidden border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800"
+        className="max-w-lg p-0 overflow-hidden border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800"
         onKeyDown={handleKeyDown}
       >
         {!isRejected ? (
           <div className="relative">
             {/* Header with Logo */}
-            <div className="bg-gradient-to-r from-[#009A49] to-[#00A86B] px-8 py-10 text-center">
-              <div className="flex justify-center mb-6">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-                  <Logo variant="white" size="lg" className="drop-shadow-lg" />
+            <div className="bg-gradient-to-r from-[#009A49] to-[#00A86B] px-6 py-6 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3">
+                  <Logo variant="white" size="md" className="drop-shadow-lg" />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2 font-montserrat">
+              <h1 className="text-2xl font-bold text-white mb-2 font-montserrat">
                 Age Verification Required
               </h1>
               <p className="text-white/90 text-sm">
@@ -65,33 +65,33 @@ export function AgeVerificationModal({
             </div>
 
             {/* Content */}
-            <div className="px-8 py-10">
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/30 mb-6">
-                  <ShieldCheck className="w-10 h-10 text-amber-600 dark:text-amber-400" />
+            <div className="px-6 py-6">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 mb-4">
+                  <ShieldCheck className="w-8 h-8 text-amber-600 dark:text-amber-400" />
                 </div>
 
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                   Restricted Content
                 </h2>
 
-                <p className="text-gray-600 dark:text-gray-300 text-lg mb-2 max-w-xl mx-auto">
+                <p className="text-gray-600 dark:text-gray-300 text-base mb-2">
                   This website sells nicotine products which are restricted to
                   adults only.
                 </p>
 
-                <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xl mx-auto">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
                   By entering this site, you confirm that you are of legal age
                   to purchase nicotine products in Ireland (18 years or older).
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 mb-6">
+              <div className="space-y-3 mb-5">
                 <Button
                   onClick={handleVerified}
                   size="lg"
-                  className="w-full h-14 text-lg font-semibold gradient-emerald hover:opacity-90 transition-opacity text-white shadow-lg"
+                  className="w-full h-12 text-base font-semibold gradient-emerald hover:opacity-90 transition-opacity text-white shadow-lg"
                 >
                   I am 18 or older - Enter Site
                 </Button>
@@ -100,7 +100,7 @@ export function AgeVerificationModal({
                   onClick={handleRejected}
                   size="lg"
                   variant="outline"
-                  className="w-full h-14 text-lg font-semibold border-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="w-full h-12 text-base font-semibold border-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   I am under 18
                 </Button>
@@ -142,13 +142,13 @@ export function AgeVerificationModal({
           // Rejection Screen
           <div className="relative">
             {/* Header */}
-            <div className="bg-gradient-to-r from-red-600 to-red-500 px-8 py-10 text-center">
-              <div className="flex justify-center mb-6">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-6">
-                  <AlertTriangle className="w-12 h-12 text-white" />
+            <div className="bg-gradient-to-r from-red-600 to-red-500 px-6 py-6 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                  <AlertTriangle className="w-10 h-10 text-white" />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2 font-montserrat">
+              <h1 className="text-2xl font-bold text-white mb-2 font-montserrat">
                 Access Denied
               </h1>
               <p className="text-white/90 text-sm">
@@ -157,21 +157,21 @@ export function AgeVerificationModal({
             </div>
 
             {/* Content */}
-            <div className="px-8 py-10 text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <div className="px-6 py-6 text-center">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                 Sorry, You Cannot Enter
               </h2>
 
-              <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md mx-auto">
+              <p className="text-gray-600 dark:text-gray-300 mb-5">
                 This website contains age-restricted content. You must be at
                 least 18 years old to access PUXX Ireland.
               </p>
 
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8 max-w-md mx-auto">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                   Looking for Information?
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   If you're under 18 and looking for information about nicotine
                   and tobacco use, please visit:
                 </p>
@@ -179,23 +179,23 @@ export function AgeVerificationModal({
                   href="https://www.hse.ie/eng/health/hl/living/children/tobacco/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="inline-flex items-center justify-center w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
                 >
                   HSE Health Information
                 </a>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <Button
                   onClick={handleGoBack}
-                  size="lg"
+                  size="default"
                   variant="outline"
-                  className="w-full h-12 border-2"
+                  className="w-full h-10 border-2"
                 >
                   Go Back
                 </Button>
 
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 pt-1">
                   Made a mistake? Click "Go Back" to verify again.
                 </p>
               </div>

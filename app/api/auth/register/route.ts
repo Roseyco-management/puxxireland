@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { getDb } from '@/lib/db/drizzle';
-import { users, profiles, type NewUser, type NewProfile } from '@/lib/db/schema';
+import { createClient } from '@supabase/supabase-js';
 import { hashPassword } from '@/lib/auth/session';
 
 // Helper function to calculate age
@@ -38,8 +36,12 @@ const registerSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const db = getDb();
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     const body = await request.json();
 
     // Validate input
@@ -91,13 +93,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .limit(1)
+      .single();
 
-    if (existingUser.length > 0) {
+    if (existingUser) {
       return NextResponse.json(
         { error: 'An account with this email already exists' },
         { status: 409 }
@@ -109,16 +112,18 @@ export async function POST(request: NextRequest) {
 
     // Create user
     const fullName = `${firstName} ${lastName}`;
-    const newUser: NewUser = {
-      name: fullName,
-      email,
-      passwordHash,
-      role: 'member',
-    };
+    const { data: createdUser, error: userError } = await supabase
+      .from('users')
+      .insert({
+        name: fullName,
+        email,
+        password_hash: passwordHash,
+        role: 'member',
+      })
+      .select()
+      .single();
 
-    const [createdUser] = await db.insert(users).values(newUser).returning();
-
-    if (!createdUser) {
+    if (userError || !createdUser) {
       return NextResponse.json(
         { error: 'Failed to create user' },
         { status: 500 }
@@ -126,15 +131,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Create profile
-    const newProfile: NewProfile = {
-      userId: createdUser.id,
-      dateOfBirth: dob,
-      ageVerified: true,
-      referralSource: referralSource || null,
-      marketingConsent,
-    };
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        user_id: createdUser.id,
+        date_of_birth: dob.toISOString(),
+        age_verified: true,
+        referral_source: referralSource || null,
+        marketing_consent: marketingConsent,
+      });
 
-    await db.insert(profiles).values(newProfile);
+    if (profileError) {
+      console.error('Profile creation error:', profileError);
+    }
 
     return NextResponse.json(
       {

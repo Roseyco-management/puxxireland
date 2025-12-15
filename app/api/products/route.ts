@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { products, categories, productCategories } from '@/lib/db/schema';
-import { eq, and, desc, asc, sql } from 'drizzle-orm';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * GET /api/products
@@ -17,8 +15,12 @@ import { eq, and, desc, asc, sql } from 'drizzle-orm';
  * - limit: number - Limit results
  */
 export async function GET(request: NextRequest) {
-  const db = getDb();
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     const searchParams = request.nextUrl.searchParams;
 
     // Extract query parameters
@@ -27,106 +29,58 @@ export async function GET(request: NextRequest) {
     const strength = searchParams.get('strength');
     const categorySlug = searchParams.get('category');
     const sortBy = searchParams.get('sort') || 'name';
-    const sortOrder = searchParams.get('order') || 'asc';
+    const sortOrder = (searchParams.get('order') || 'asc') as 'asc' | 'desc';
     const limit = parseInt(searchParams.get('limit') || '100');
 
-    // Build query conditions
-    const conditions = [eq(products.isActive, true)];
+    // Build query
+    let query = supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true);
 
     if (featured) {
-      conditions.push(eq(products.isFeatured, true));
+      query = query.eq('is_featured', true);
     }
 
     if (flavor) {
-      conditions.push(eq(products.flavor, flavor));
+      query = query.eq('flavor', flavor);
     }
 
     if (strength) {
-      conditions.push(eq(products.nicotineStrength, strength));
+      query = query.eq('nicotine_strength', strength);
     }
 
-    // Determine sorting
-    const orderColumn =
-      sortBy === 'price'
-        ? products.price
-        : sortBy === 'strength'
-          ? products.nicotineStrength
-          : products.name;
-
-    const orderFunc = sortOrder === 'desc' ? desc : asc;
-
-    // Build the query with or without category filter
-    let allProducts;
-
     if (categorySlug) {
-      allProducts = await db
-        .select({
-          id: products.id,
-          name: products.name,
-          slug: products.slug,
-          description: products.description,
-          price: products.price,
-          compareAtPrice: products.compareAtPrice,
-          sku: products.sku,
-          nicotineStrength: products.nicotineStrength,
-          flavor: products.flavor,
-          pouchesPerCan: products.pouchesPerCan,
-          ingredients: products.ingredients,
-          usageInstructions: products.usageInstructions,
-          imageUrl: products.imageUrl,
-          imageGallery: products.imageGallery,
-          stockQuantity: products.stockQuantity,
-          isActive: products.isActive,
-          isFeatured: products.isFeatured,
-          metaTitle: products.metaTitle,
-          metaDescription: products.metaDescription,
-          createdAt: products.createdAt,
-          updatedAt: products.updatedAt,
-        })
-        .from(products)
-        .innerJoin(
-          productCategories,
-          eq(products.id, productCategories.productId)
-        )
-        .innerJoin(categories, eq(productCategories.categoryId, categories.id))
-        .where(and(...conditions, eq(categories.slug, categorySlug)))
-        .orderBy(orderFunc(orderColumn))
-        .limit(limit);
-    } else {
-      allProducts = await db
-        .select({
-          id: products.id,
-          name: products.name,
-          slug: products.slug,
-          description: products.description,
-          price: products.price,
-          compareAtPrice: products.compareAtPrice,
-          sku: products.sku,
-          nicotineStrength: products.nicotineStrength,
-          flavor: products.flavor,
-          pouchesPerCan: products.pouchesPerCan,
-          ingredients: products.ingredients,
-          usageInstructions: products.usageInstructions,
-          imageUrl: products.imageUrl,
-          imageGallery: products.imageGallery,
-          stockQuantity: products.stockQuantity,
-          isActive: products.isActive,
-          isFeatured: products.isFeatured,
-          metaTitle: products.metaTitle,
-          metaDescription: products.metaDescription,
-          createdAt: products.createdAt,
-          updatedAt: products.updatedAt,
-        })
-        .from(products)
-        .where(and(...conditions))
-        .orderBy(orderFunc(orderColumn))
-        .limit(limit);
+      // For category filtering, we need to join with product_categories and categories
+      query = supabase
+        .from('products')
+        .select(`
+          *,
+          product_categories!inner(
+            categories!inner(slug)
+          )
+        `)
+        .eq('is_active', true)
+        .eq('product_categories.categories.slug', categorySlug);
+    }
+
+    // Apply sorting
+    const sortColumn = sortBy === 'price' ? 'price' : sortBy === 'strength' ? 'nicotine_strength' : 'name';
+    query = query.order(sortColumn, { ascending: sortOrder === 'asc' });
+
+    // Apply limit
+    query = query.limit(limit);
+
+    const { data: allProducts, error } = await query;
+
+    if (error) {
+      throw error;
     }
 
     return NextResponse.json({
       success: true,
-      count: allProducts.length,
-      products: allProducts,
+      count: allProducts?.length || 0,
+      products: allProducts || [],
     });
   } catch (error) {
     console.error('Error fetching products:', error);

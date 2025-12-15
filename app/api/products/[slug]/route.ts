@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { products, categories, productCategories } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * GET /api/products/[slug]
@@ -13,7 +11,10 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const db = getDb();
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     if (!slug) {
       return NextResponse.json(
@@ -26,21 +27,19 @@ export async function GET(
     }
 
     // Fetch product with categories
-    const result = await db
-      .select({
-        product: products,
-        category: categories,
-      })
-      .from(products)
-      .leftJoin(
-        productCategories,
-        eq(products.id, productCategories.productId)
-      )
-      .leftJoin(categories, eq(productCategories.categoryId, categories.id))
-      .where(and(eq(products.slug, slug), eq(products.isActive, true)))
-      .limit(1);
+    const { data: productData, error: productError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        product_categories(
+          categories(*)
+        )
+      `)
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single();
 
-    if (result.length === 0) {
+    if (productError || !productData) {
       return NextResponse.json(
         {
           success: false,
@@ -50,17 +49,15 @@ export async function GET(
       );
     }
 
-    // Combine product data with categories
-    const productData = result[0].product;
-    const categoriesData = result
-      .filter((r) => r.category !== null)
-      .map((r) => r.category);
+    // Extract categories from the nested structure
+    const categories = productData.product_categories?.map((pc: any) => pc.categories).filter(Boolean) || [];
 
     return NextResponse.json({
       success: true,
       product: {
         ...productData,
-        categories: categoriesData,
+        categories,
+        product_categories: undefined, // Remove the join field from response
       },
     });
   } catch (error) {

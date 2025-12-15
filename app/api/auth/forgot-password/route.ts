@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { getDb } from '@/lib/db/drizzle';
-import { users } from '@/lib/db/schema';
+import { createClient } from '@supabase/supabase-js';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
 });
 
 export async function POST(request: NextRequest) {
-  const db = getDb();
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     const body = await request.json();
 
     // Validate input
@@ -25,17 +27,18 @@ export async function POST(request: NextRequest) {
     const { email } = result.data;
 
     // Check if user exists
-    const userResult = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const { data: userResult } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .limit(1)
+      .single();
 
     // Always return success to prevent email enumeration
     // In production, send email only if user exists
-    if (userResult.length > 0) {
+    if (userResult) {
       // TODO: Generate reset token and send email
-      // const resetToken = await generatePasswordResetToken(userResult[0].id);
+      // const resetToken = await generatePasswordResetToken(userResult.id);
       // await sendPasswordResetEmail(email, resetToken);
       console.log('Password reset requested for:', email);
     }

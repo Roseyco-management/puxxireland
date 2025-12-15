@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { getDb } from '@/lib/db/drizzle';
-import { users } from '@/lib/db/schema';
+import { createClient } from '@supabase/supabase-js';
 import { comparePasswords, setSession } from '@/lib/auth/session';
 
 const loginSchema = z.object({
@@ -11,8 +9,12 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const db = getDb();
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     const body = await request.json();
 
     // Validate input
@@ -27,23 +29,24 @@ export async function POST(request: NextRequest) {
     const { email, password } = result.data;
 
     // Find user
-    const userResult = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const { data: userResult, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .limit(1)
+      .single();
 
-    if (userResult.length === 0) {
+    if (userError || !userResult) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
-    const user = userResult[0];
+    const user = userResult;
 
     // Check if user is deleted
-    if (user.deletedAt) {
+    if (user.deleted_at) {
       return NextResponse.json(
         { error: 'Account has been deactivated' },
         { status: 403 }
@@ -51,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
-    const isPasswordValid = await comparePasswords(password, user.passwordHash);
+    const isPasswordValid = await comparePasswords(password, user.password_hash);
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
