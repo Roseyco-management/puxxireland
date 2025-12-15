@@ -74,7 +74,7 @@ export function Header() {
           </button>
 
           <Button asChild variant="ghost" size="sm">
-            <Link href="/sign-in">
+            <Link href="/login">
               <User className="mr-2 h-4 w-4" />
               Login
             </Link>
@@ -114,7 +114,7 @@ export function Header() {
               </button>
 
               <Link
-                href="/sign-in"
+                href="/login"
                 className="flex items-center rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >

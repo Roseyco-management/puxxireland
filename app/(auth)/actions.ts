@@ -1,14 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { eq, and } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
-import {
-  users,
-  profiles,
-  type NewUser,
-  type NewProfile,
-} from '@/lib/db/schema';
+import { getSupabaseClient } from '@/lib/db/supabase';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
@@ -37,18 +30,17 @@ const signInSchema = z.object({
 export const signIn = validatedAction(signInSchema, async (data, formData) => {
   const { email, password } = data;
 
-  if (!db) {
-    throw new Error('Database not configured');
-  }
+  const supabase = getSupabaseClient();
 
   // Find user by email
-  const userResult = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const { data: userResult, error: userError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .limit(1)
+    .single();
 
-  if (userResult.length === 0) {
+  if (userError || !userResult) {
     return {
       error: 'Invalid email or password. Please try again.',
       email,
@@ -56,10 +48,10 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
     };
   }
 
-  const foundUser = userResult[0];
+  const foundUser = userResult;
 
   // Verify password
-  const isPasswordValid = await comparePasswords(password, foundUser.passwordHash);
+  const isPasswordValid = await comparePasswords(password, foundUser.password_hash);
 
   if (!isPasswordValid) {
     return {
@@ -70,7 +62,7 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
   }
 
   // Check if user is deleted
-  if (foundUser.deletedAt) {
+  if (foundUser.deleted_at) {
     return {
       error: 'This account has been deactivated. Please contact support.',
       email,
@@ -82,6 +74,7 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
   await setSession(foundUser);
 
   // Redirect to account page
+  // TODO: Redirect admins to /admin once admin routes are converted to Supabase
   redirect('/account');
 });
 
