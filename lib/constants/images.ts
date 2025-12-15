@@ -162,28 +162,32 @@ export type ResponsiveSize = 'mobile' | 'tablet' | 'desktop' | 'original';
  * Get logo image path by variant and size
  */
 export function getLogoImage(variant: LogoVariant, size: LogoSize = 'original'): string {
-  return LOGO_IMAGES[variant][size];
+  const logoVariant = LOGO_IMAGES[variant] as any;
+  return logoVariant[size] || logoVariant.original || logoVariant.small;
 }
 
 /**
  * Get hero image path by name and responsive size
  */
 export function getHeroImage(name: HeroImage, size: ResponsiveSize = 'original'): string {
-  return HERO_IMAGES[name][size];
+  const heroImage = HERO_IMAGES[name] as any;
+  return heroImage[size] || heroImage.original || heroImage.desktop;
 }
 
 /**
  * Get marketing image path by name and responsive size
  */
 export function getMarketingImage(name: MarketingImage, size: ResponsiveSize = 'original'): string {
-  return MARKETING_IMAGES[name][size];
+  const marketingImage = MARKETING_IMAGES[name] as any;
+  return marketingImage[size] || marketingImage.original || marketingImage.desktop;
 }
 
 /**
  * Get background image path by name and responsive size
  */
 export function getBackgroundImage(name: BackgroundImage, size: ResponsiveSize = 'desktop'): string {
-  return BACKGROUND_IMAGES[name][size];
+  const backgroundImage = BACKGROUND_IMAGES[name] as any;
+  return backgroundImage[size] || backgroundImage.desktop || backgroundImage.original;
 }
 
 /**

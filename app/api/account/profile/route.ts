@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { users, profiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
@@ -11,6 +11,8 @@ export async function GET() {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const db = getDb();
 
     // Get user profile
     const userProfile = await db
@@ -39,6 +41,8 @@ export async function PUT(request: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const db = getDb();
 
     const body = await request.json();
     const { firstName, lastName, phone, marketingConsent } = body;

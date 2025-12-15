@@ -37,10 +37,13 @@ export function ProductSchema({ product }: ProductSchemaProps) {
     ...(product.imageGallery || [])
   ].filter(Boolean);
 
+  const ProductJsonLdAny = ProductJsonLd as any;
+  const BreadcrumbJsonLdAny = BreadcrumbJsonLd as any;
+
   return (
     <>
       {/* Product Schema (lines 222-246 in SEO plan) */}
-      <ProductJsonLd
+      <ProductJsonLdAny
         productName={product.name}
         images={productImages}
         description={product.description}
@@ -59,13 +62,13 @@ export function ProductSchema({ product }: ProductSchemaProps) {
           },
         ]}
         aggregateRating={{
-          ratingValue: '4.8',
-          reviewCount: '127',
+          ratingValue: 4.8,
+          reviewCount: 127,
         }}
       />
 
       {/* Breadcrumb Schema (lines 421-440 in SEO plan) */}
-      <BreadcrumbJsonLd
+      <BreadcrumbJsonLdAny
         itemListElements={[
           {
             position: 1,

@@ -1,2 +1,2 @@
-export { CartDrawer, useCart } from './CartDrawer';
+export { CartDrawer } from './CartDrawer';
 export { CartButton } from './CartButton';

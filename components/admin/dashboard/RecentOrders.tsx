@@ -58,7 +58,7 @@ export const RecentOrders: React.FC<{ orders: Order[] }> = ({ orders }) => {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    €{parseFloat(order.total).toFixed(2)}
+                    €{Number(order.total).toFixed(2)}
                   </p>
                   <span className={`inline-block px-2 py-1 mt-1 text-xs font-medium rounded-full ${statusColors[order.status] || statusColors.pending}`}>
                     {order.status}

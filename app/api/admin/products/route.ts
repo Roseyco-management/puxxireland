@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { products, productCategories, categories } from '@/lib/db/schema';
 import { eq, and, desc, asc, sql, ilike, or } from 'drizzle-orm';
 import { productSchema } from '@/lib/validations/product';
@@ -19,6 +19,7 @@ import { productSchema } from '@/lib/validations/product';
  * - limit: number - Items per page
  */
 export async function GET(request: NextRequest) {
+  const db = getDb();
   try {
     const searchParams = request.nextUrl.searchParams;
 
@@ -115,9 +116,9 @@ export async function GET(request: NextRequest) {
           eq(products.id, productCategories.productId)
         )
         .innerJoin(categories, eq(productCategories.categoryId, categories.id))
-        .where(and(...conditions, eq(categories.slug, categorySlug)));
+        .where(and(...conditions, eq(categories.slug, categorySlug))) as any;
     } else if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as any;
     }
 
     // Get total count
@@ -160,6 +161,7 @@ export async function GET(request: NextRequest) {
  * Creates a new product
  */
 export async function POST(request: NextRequest) {
+  const db = getDb();
   try {
     const body = await request.json();
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { categories } from '@/lib/db/schema';
 import { asc } from 'drizzle-orm';
 
@@ -8,6 +8,7 @@ import { asc } from 'drizzle-orm';
  * Fetches all product categories
  */
 export async function GET(request: NextRequest) {
+  const db = getDb();
   try {
     const allCategories = await db
       .select()

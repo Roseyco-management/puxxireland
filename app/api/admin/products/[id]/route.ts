@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { products, productCategories, categories } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { productSchema } from '@/lib/validations/product';
@@ -15,6 +15,7 @@ export async function GET(
   try {
     const { id } = await params;
     const productId = parseInt(id);
+    const db = getDb();
 
     if (isNaN(productId)) {
       return NextResponse.json(
@@ -76,6 +77,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const productId = parseInt(id);
+    const db = getDb();
 
     if (isNaN(productId)) {
       return NextResponse.json(
@@ -219,6 +221,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const productId = parseInt(id);
+    const db = getDb();
 
     if (isNaN(productId)) {
       return NextResponse.json(

@@ -27,12 +27,12 @@ export async function middleware(request: NextRequest) {
       // Check if user has admin role (you can customize this check)
       // For now, we'll allow access if they have a valid session
       // You can add role checking here when you implement the roles in your session token
-      if (!parsed?.userId) {
+      if (!parsed?.user) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
 
       // TODO: Check user role from database if needed
-      // const hasAdminRole = await checkUserRole(parsed.userId);
+      // const hasAdminRole = await checkUserRole(parsed.user.id);
       // if (!hasAdminRole) {
       //   return NextResponse.redirect(new URL('/', request.url));
       // }

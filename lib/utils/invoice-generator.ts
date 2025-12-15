@@ -22,15 +22,15 @@ export function generateInvoicePDF(order: OrderWithItems) {
     doc.setFont('helvetica', options.style || 'normal');
     doc.setFontSize(options.size || 10);
     if (options.color) {
-      doc.setTextColor(...options.color);
+      doc.setTextColor(options.color[0], options.color[1], options.color[2]);
     } else {
-      doc.setTextColor(...darkGray);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
     }
     doc.text(text, x, y, options);
   };
 
   // Header - Company Info
-  doc.setFillColor(...primaryGreen);
+  doc.setFillColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
   doc.rect(0, 0, pageWidth, 40, 'F');
 
   addText('PUXX IRELAND', margin, 20, {
@@ -184,7 +184,7 @@ export function generateInvoicePDF(order: OrderWithItems) {
   yPos += 5;
 
   // Divider line
-  doc.setDrawColor(...lightGray);
+  doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
   doc.line(margin, yPos, pageWidth - margin, yPos);
 
   yPos += 10;
@@ -215,7 +215,7 @@ export function generateInvoicePDF(order: OrderWithItems) {
   yPos += 3;
 
   // Total background
-  doc.setFillColor(...primaryGreen);
+  doc.setFillColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
   doc.rect(summaryX - 5, yPos - 5, 65, 10, 'F');
 
   addText('TOTAL:', summaryX, yPos, {
@@ -253,7 +253,7 @@ export function generateInvoicePDF(order: OrderWithItems) {
 
   // Footer
   const footerY = pageHeight - 30;
-  doc.setDrawColor(...lightGray);
+  doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
   doc.line(margin, footerY, pageWidth - margin, footerY);
 
   const footerText = [

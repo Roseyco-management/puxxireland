@@ -19,8 +19,14 @@ export interface CartItem {
   quantity: number;
 }
 
+// Product subset needed for cart conversion
+export type ProductForCart = Pick<
+  Product,
+  'id' | 'name' | 'slug' | 'price' | 'nicotineStrength' | 'flavor' | 'imageUrl' | 'stockQuantity' | 'sku'
+>;
+
 // Convert DB Product to CartProduct
-export function toCartProduct(product: Product): CartProduct {
+export function toCartProduct(product: ProductForCart): CartProduct {
   return {
     id: product.id,
     name: product.name,

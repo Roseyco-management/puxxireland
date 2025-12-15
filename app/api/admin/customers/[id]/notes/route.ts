@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { customerNotes, users } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 
@@ -14,6 +14,7 @@ export async function POST(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
+    const db = getDb();
     const body = await request.json();
     const { note, createdBy } = body;
 
@@ -61,6 +62,7 @@ export async function GET(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
+    const db = getDb();
 
     const notes = await db
       .select({

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { products, categories, productCategories } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
@@ -13,6 +13,7 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    const db = getDb();
 
     if (!slug) {
       return NextResponse.json(

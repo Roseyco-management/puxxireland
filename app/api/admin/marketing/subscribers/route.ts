@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { newsletterSubscribers } from '@/lib/db/schema';
 import { eq, desc, ilike, and } from 'drizzle-orm';
 
@@ -12,6 +12,7 @@ import { eq, desc, ilike, and } from 'drizzle-orm';
  * - status: string - Filter by status (active, unsubscribed)
  */
 export async function GET(request: NextRequest) {
+  const db = getDb();
   try {
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get('search');
@@ -67,6 +68,7 @@ export async function GET(request: NextRequest) {
  * Add a new subscriber or import from CSV
  */
 export async function POST(request: NextRequest) {
+  const db = getDb();
   try {
     const body = await request.json();
     const { email, name, source, subscribers } = body;
@@ -168,6 +170,7 @@ export async function POST(request: NextRequest) {
  * Bulk unsubscribe or delete subscribers
  */
 export async function DELETE(request: NextRequest) {
+  const db = getDb();
   try {
     const body = await request.json();
     const { ids, action } = body; // action: 'unsubscribe' or 'delete'

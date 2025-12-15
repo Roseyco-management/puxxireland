@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { users, profiles, orders, addresses, customerNotes } from '@/lib/db/schema';
 import { eq, desc, sql } from 'drizzle-orm';
 
@@ -14,6 +14,7 @@ export async function GET(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
+    const db = getDb();
 
     // Fetch customer with profile
     const customerData = await db
@@ -134,6 +135,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
+    const db = getDb();
 
     // Soft delete by setting deletedAt timestamp
     await db

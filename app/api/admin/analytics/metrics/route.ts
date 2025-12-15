@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { orders, users } from '@/lib/db/schema';
 import { eq, and, gte, lte, sql, inArray } from 'drizzle-orm';
 import { getDateRangeFromPeriod } from '@/lib/analytics/utils';
@@ -7,6 +7,7 @@ import type { TimePeriod, AnalyticsMetrics } from '@/lib/analytics/types';
 
 export async function GET(request: NextRequest) {
   try {
+    const db = getDb();
     const searchParams = request.nextUrl.searchParams;
     const period = (searchParams.get('period') || 'month') as TimePeriod;
     const startDate = searchParams.get('startDate');

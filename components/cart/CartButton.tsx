@@ -4,29 +4,30 @@ import * as React from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useCart } from './CartDrawer';
+import { useCartStore, cartSelectors } from '@/lib/store/cart-store';
 import { cn } from '@/lib/utils';
 
 interface CartButtonProps {
   variant?: 'default' | 'outline' | 'ghost';
   className?: string;
   showBadge?: boolean;
+  onClick?: () => void;
 }
 
 export function CartButton({
   variant = 'ghost',
   className,
   showBadge = true,
+  onClick,
 }: CartButtonProps) {
-  const { openCart, getItemCount } = useCart();
-  const itemCount = getItemCount();
+  const itemCount = useCartStore(cartSelectors.itemCount);
 
   return (
     <Button
       variant={variant}
       size="icon"
       className={cn('relative', className)}
-      onClick={openCart}
+      onClick={onClick}
       aria-label={`Shopping cart with ${itemCount} items`}
     >
       <ShoppingCart className="h-5 w-5" />

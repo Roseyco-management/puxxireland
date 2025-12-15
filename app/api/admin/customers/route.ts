@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { users, profiles, orders, orderItems } from '@/lib/db/schema';
 import { eq, desc, sql, ilike, and, gte, lte } from 'drizzle-orm';
 
@@ -15,6 +15,7 @@ import { eq, desc, sql, ilike, and, gte, lte } from 'drizzle-orm';
  * - dateTo: string - Filter by joined date (ISO format)
  */
 export async function GET(request: NextRequest) {
+  const db = getDb();
   try {
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get('search');

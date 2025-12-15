@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { orders, orderItems, products, cartItems } from '@/lib/db/schema';
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
 import { getDateRangeFromPeriod } from '@/lib/analytics/utils';
 import type { TimePeriod, ProductPerformance } from '@/lib/analytics/types';
 
 export async function GET(request: NextRequest) {
+  const db = getDb();
   try {
     const searchParams = request.nextUrl.searchParams;
     const period = (searchParams.get('period') || 'month') as TimePeriod;

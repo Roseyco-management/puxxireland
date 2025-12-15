@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { comparePasswords, setSession } from '@/lib/auth/session';
 
@@ -11,6 +11,7 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const db = getDb();
   try {
     const body = await request.json();
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
+import { getDb } from '@/lib/db/drizzle';
 import { products } from '@/lib/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
@@ -18,6 +18,7 @@ const bulkActionSchema = z.object({
  * - productIds: number[] - Array of product IDs
  */
 export async function POST(request: NextRequest) {
+  const db = getDb();
   try {
     const body = await request.json();
 
@@ -109,6 +110,7 @@ export async function POST(request: NextRequest) {
  * - ids: comma-separated list of product IDs
  */
 export async function DELETE(request: NextRequest) {
+  const db = getDb();
   try {
     const searchParams = request.nextUrl.searchParams;
     const idsParam = searchParams.get('ids');

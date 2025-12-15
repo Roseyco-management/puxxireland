@@ -1,5 +1,5 @@
 import { stripe } from '../payments/stripe';
-import { db } from './drizzle';
+import { getDb } from './drizzle';
 import { users, teams, teamMembers } from './schema';
 import { hashPassword } from '@/lib/auth/session';
 
@@ -40,6 +40,7 @@ async function createStripeProducts() {
 }
 
 async function seed() {
+  const db = getDb();
   const email = 'test@test.com';
   const password = 'admin123';
   const passwordHash = await hashPassword(password);

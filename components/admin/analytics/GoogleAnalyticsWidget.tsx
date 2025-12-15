@@ -136,7 +136,7 @@ export const GoogleAnalyticsWidget: React.FC<GoogleAnalyticsWidgetProps> = ({
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={(entry) => `${entry.percentage.toFixed(1)}%`}
+                  label={(entry) => `${((entry.percent || 0) * 100).toFixed(1)}%`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="visitors"
