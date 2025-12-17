@@ -77,10 +77,35 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
+    // Transform snake_case to camelCase for frontend
+    const transformedProducts = allProducts?.map(product => ({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      price: product.price,
+      compareAtPrice: product.compare_at_price,
+      sku: product.sku,
+      nicotineStrength: product.nicotine_strength,
+      flavor: product.flavor,
+      pouchesPerCan: product.pouches_per_can,
+      ingredients: product.ingredients,
+      usageInstructions: product.usage_instructions,
+      imageUrl: product.image_url,
+      imageGallery: product.image_gallery,
+      stockQuantity: product.stock_quantity,
+      isActive: product.is_active,
+      isFeatured: product.is_featured,
+      metaTitle: product.meta_title,
+      metaDescription: product.meta_description,
+      createdAt: product.created_at,
+      updatedAt: product.updated_at,
+    }));
+
     return NextResponse.json({
       success: true,
-      count: allProducts?.length || 0,
-      products: allProducts || [],
+      count: transformedProducts?.length || 0,
+      products: transformedProducts || [],
     });
   } catch (error) {
     console.error('Error fetching products:', error);

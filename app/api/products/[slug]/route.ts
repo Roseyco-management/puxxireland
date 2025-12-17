@@ -52,13 +52,35 @@ export async function GET(
     // Extract categories from the nested structure
     const categories = productData.product_categories?.map((pc: any) => pc.categories).filter(Boolean) || [];
 
+    // Transform snake_case to camelCase for frontend
+    const transformedProduct = {
+      id: productData.id,
+      name: productData.name,
+      slug: productData.slug,
+      description: productData.description,
+      price: productData.price,
+      compareAtPrice: productData.compare_at_price,
+      sku: productData.sku,
+      nicotineStrength: productData.nicotine_strength,
+      flavor: productData.flavor,
+      pouchesPerCan: productData.pouches_per_can,
+      ingredients: productData.ingredients,
+      usageInstructions: productData.usage_instructions,
+      imageUrl: productData.image_url,
+      imageGallery: productData.image_gallery,
+      stockQuantity: productData.stock_quantity,
+      isActive: productData.is_active,
+      isFeatured: productData.is_featured,
+      metaTitle: productData.meta_title,
+      metaDescription: productData.meta_description,
+      createdAt: productData.created_at,
+      updatedAt: productData.updated_at,
+      categories,
+    };
+
     return NextResponse.json({
       success: true,
-      product: {
-        ...productData,
-        categories,
-        product_categories: undefined, // Remove the join field from response
-      },
+      product: transformedProduct,
     });
   } catch (error) {
     console.error('Error fetching product:', error);

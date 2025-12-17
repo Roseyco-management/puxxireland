@@ -1,51 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Package, CreditCard, Truck, Lock, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-interface CartItem {
-  productId: number;
-  name: string;
-  price: string;
-  imageUrl: string | null;
-  quantity: number;
-  nicotineStrength: string | null;
-  flavor: string | null;
-}
+import { useCartStore, useCartReady } from '@/lib/store/cart-store';
 
 export default function CheckoutPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const isHydrated = useCartReady();
+  const items = useCartStore((state) => state.items);
+  const subtotal = useCartStore((state) => state.getSubtotal());
+  const shippingCost = useCartStore((state) => state.getShippingCost());
+  const total = useCartStore((state) => state.getTotal());
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Load cart
-  useEffect(() => {
-    try {
-      const existingCart = localStorage.getItem('puxx_cart');
-      if (existingCart) {
-        setCartItems(JSON.parse(existingCart));
-      }
-    } catch (error) {
-      console.error('Error loading cart:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Calculate totals
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + parseFloat(item.price) * item.quantity,
-    0
-  );
-  const shipping = subtotal >= 150 ? 0 : 5.99;
-  const total = subtotal + shipping;
-
-  if (isLoading) {
+  // Loading state (waiting for hydration)
+  if (!isHydrated) {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -57,7 +30,7 @@ export default function CheckoutPage() {
   }
 
   // Redirect if cart is empty
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <main className="min-h-screen bg-background">
         <div className="max-w-2xl mx-auto px-4 py-16 text-center">
@@ -211,7 +184,13 @@ export default function CheckoutPage() {
                           <p className="text-sm text-muted-foreground">3-5 business days</p>
                         </div>
                       </div>
-                      <span className="font-bold">€5.99</span>
+                      <span className="font-bold">
+                        {shippingCost === 0 ? (
+                          <span className="text-primary">FREE</span>
+                        ) : (
+                          `€${shippingCost.toFixed(2)}`
+                        )}
+                      </span>
                     </label>
                     <label className="flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors">
                       <div className="flex items-center gap-3">
@@ -249,13 +228,13 @@ export default function CheckoutPage() {
 
                 {/* Items */}
                 <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
-                  {cartItems.map((item) => (
-                    <div key={item.productId} className="flex gap-3">
+                  {items.map((item) => (
+                    <div key={item.product.id} className="flex gap-3">
                       <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                        {item.imageUrl ? (
+                        {item.product.imageUrl ? (
                           <Image
-                            src={item.imageUrl}
-                            alt={item.name}
+                            src={item.product.imageUrl}
+                            alt={item.product.name}
                             fill
                             className="object-cover"
                             sizes="64px"
@@ -270,10 +249,10 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                       <div className="flex-grow min-w-0">
-                        <p className="font-medium text-sm truncate">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">{item.nicotineStrength}</p>
+                        <p className="font-medium text-sm truncate">{item.product.name}</p>
+                        <p className="text-xs text-muted-foreground">{item.product.nicotineStrength}</p>
                         <p className="text-sm font-semibold mt-1">
-                          €{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                          €{(parseFloat(item.product.price) * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -289,10 +268,10 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
                     <span className="font-semibold">
-                      {shipping === 0 ? (
+                      {shippingCost === 0 ? (
                         <span className="text-primary">FREE</span>
                       ) : (
-                        `€${shipping.toFixed(2)}`
+                        `€${shippingCost.toFixed(2)}`
                       )}
                     </span>
                   </div>

@@ -1,84 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag, ArrowLeft, Trash2, Plus, Minus, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface CartItem {
-  productId: number;
-  name: string;
-  slug: string;
-  price: string;
-  imageUrl: string | null;
-  quantity: number;
-  nicotineStrength: string | null;
-  flavor: string | null;
-}
+import { useCartStore, useCartReady } from '@/lib/store/cart-store';
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const isHydrated = useCartReady();
+  const items = useCartStore((state) => state.items);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const subtotal = useCartStore((state) => state.getSubtotal());
+  const totalItems = useCartStore((state) => state.getTotalItems());
+  const shipping = useCartStore((state) => state.getShippingCost());
+  const total = useCartStore((state) => state.getTotal());
 
-  // Load cart from localStorage
-  useEffect(() => {
-    const loadCart = () => {
-      try {
-        const existingCart = localStorage.getItem('puxx_cart');
-        if (existingCart) {
-          const cart = JSON.parse(existingCart);
-          setCartItems(cart);
-        }
-      } catch (error) {
-        console.error('Error loading cart:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCart();
-
-    // Listen for cart updates
-    const handleCartUpdate = () => {
-      loadCart();
-    };
-
-    window.addEventListener('cartUpdated', handleCartUpdate);
-    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
-  }, []);
-
-  // Update quantity
-  const handleUpdateQuantity = (productId: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-
-    const updatedCart = cartItems.map((item) =>
-      item.productId === productId ? { ...item, quantity: newQuantity } : item
-    );
-    setCartItems(updatedCart);
-    localStorage.setItem('puxx_cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event('cartUpdated'));
-  };
-
-  // Remove item
-  const handleRemoveItem = (productId: number) => {
-    const updatedCart = cartItems.filter((item) => item.productId !== productId);
-    setCartItems(updatedCart);
-    localStorage.setItem('puxx_cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event('cartUpdated'));
-  };
-
-  // Calculate totals
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + parseFloat(item.price) * item.quantity,
-    0
-  );
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const shipping = subtotal >= 150 ? 0 : 5.99;
-  const total = subtotal + shipping;
-
-  // Loading state
-  if (isLoading) {
+  // Loading state (waiting for hydration)
+  if (!isHydrated) {
     return (
       <main className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -94,7 +33,7 @@ export default function CartPage() {
   }
 
   // Empty cart state
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <main className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
@@ -146,19 +85,19 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
+            {items.map((item) => (
               <div
-                key={item.productId}
+                key={item.product.id}
                 className="bg-white rounded-xl border-2 shadow-sm p-6 hover:border-primary/50 transition-colors"
               >
                 <div className="flex gap-6">
                   {/* Product Image */}
                   <div className="flex-shrink-0">
                     <div className="relative h-24 w-24 rounded-lg overflow-hidden bg-muted">
-                      {item.imageUrl ? (
+                      {item.product.imageUrl ? (
                         <Image
-                          src={item.imageUrl}
-                          alt={item.name}
+                          src={item.product.imageUrl}
+                          alt={item.product.name}
                           fill
                           className="object-cover"
                           sizes="96px"
@@ -177,24 +116,24 @@ export default function CartPage() {
                       <div>
                         <h3 className="font-heading text-lg mb-1">
                           <Link
-                            href={`/products/${item.slug}`}
+                            href={`/products/${item.product.slug}`}
                             className="hover:text-primary transition-colors"
                           >
-                            {item.name}
+                            {item.product.name}
                           </Link>
                         </h3>
                         <div className="flex gap-3 text-sm text-muted-foreground">
-                          {item.flavor && <span>{item.flavor}</span>}
-                          {item.nicotineStrength && (
+                          {item.product.flavor && <span>{item.product.flavor}</span>}
+                          {item.product.nicotineStrength && (
                             <>
                               <span>•</span>
-                              <span>{item.nicotineStrength}</span>
+                              <span>{item.product.nicotineStrength}</span>
                             </>
                           )}
                         </div>
                       </div>
                       <p className="text-lg font-bold">
-                        €{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                        €{(parseFloat(item.product.price) * item.quantity).toFixed(2)}
                       </p>
                     </div>
 
@@ -204,7 +143,7 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
                           className="h-8 w-8 p-0"
                         >
@@ -216,7 +155,7 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                           className="h-8 w-8 p-0"
                         >
                           <Plus className="h-4 w-4" />
@@ -226,7 +165,7 @@ export default function CartPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleRemoveItem(item.productId)}
+                        onClick={() => removeItem(item.product.id)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -268,7 +207,7 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                {subtotal < 150 && shipping > 0 && (
+                {!useCartStore.getState().isFreeShipping() && shipping > 0 && (
                   <div className="bg-muted/50 rounded-lg p-3 text-sm">
                     <p className="text-muted-foreground">
                       Add <span className="font-bold text-foreground">€{(150 - subtotal).toFixed(2)}</span> more for FREE shipping!

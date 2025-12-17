@@ -1,6 +1,6 @@
 'use client';
 
-import { ProductJsonLd, BreadcrumbJsonLd } from 'next-seo';
+import { ProductJsonLd } from 'next-seo';
 import { ProductWithCategories } from '@/lib/types/product';
 
 interface ProductSchemaProps {
@@ -38,7 +38,6 @@ export function ProductSchema({ product }: ProductSchemaProps) {
   ].filter(Boolean);
 
   const ProductJsonLdAny = ProductJsonLd as any;
-  const BreadcrumbJsonLdAny = BreadcrumbJsonLd as any;
 
   return (
     <>
@@ -68,24 +67,34 @@ export function ProductSchema({ product }: ProductSchemaProps) {
       />
 
       {/* Breadcrumb Schema (lines 421-440 in SEO plan) */}
-      <BreadcrumbJsonLdAny
-        itemListElements={[
-          {
-            position: 1,
-            name: 'Home',
-            item: baseUrl,
-          },
-          {
-            position: 2,
-            name: 'Shop',
-            item: `${baseUrl}/products`,
-          },
-          {
-            position: 3,
-            name: product.name,
-            item: productUrl,
-          },
-        ]}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: baseUrl,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Shop',
+                item: `${baseUrl}/products`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: product.name,
+                item: productUrl,
+              },
+            ],
+          }),
+        }}
       />
     </>
   );
