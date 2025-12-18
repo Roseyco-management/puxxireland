@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, Plus, Minus, Trash2, ShoppingCart, X } from 'lucide-react';
+import { ShoppingBag, Plus, Minus, Trash2, ShoppingCart, X, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/store/cart-store';
 import { CART_CONSTANTS } from '@/lib/store/cart-types';
