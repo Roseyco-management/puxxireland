@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { orders, users } from '@/lib/db/schema';
-import { eq, and, gte, lte, sql, inArray } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 import { getDateRangeFromPeriod } from '@/lib/analytics/utils';
 import type { TimePeriod, AnalyticsMetrics } from '@/lib/analytics/types';
 
 export async function GET(request: NextRequest) {
   try {
-    const db = getDb();
+    const supabase = getSupabaseClient();
     const searchParams = request.nextUrl.searchParams;
     const period = (searchParams.get('period') || 'month') as TimePeriod;
     const startDate = searchParams.get('startDate');
@@ -24,50 +22,56 @@ export async function GET(request: NextRequest) {
     }
 
     // Get total revenue and orders for period
-    const [revenueStats] = await db
-      .select({
-        totalRevenue: sql<number>`COALESCE(SUM(${orders.total}), 0)`,
-        totalOrders: sql<number>`COUNT(${orders.id})`,
-        avgOrderValue: sql<number>`COALESCE(AVG(${orders.total}), 0)`,
-      })
-      .from(orders)
-      .where(
-        and(
-          gte(orders.createdAt, dateRange.start),
-          lte(orders.createdAt, dateRange.end),
-          eq(orders.paymentStatus, 'succeeded')
-        )
-      );
+    const { data: periodOrders } = await supabase
+      .from('orders')
+      .select('id, total, created_at, user_id')
+      .gte('created_at', dateRange.start.toISOString())
+      .lte('created_at', dateRange.end.toISOString())
+      .eq('payment_status', 'succeeded');
+
+    const totalRevenue = periodOrders?.reduce((sum, order) => {
+      return sum + parseFloat(order.total || '0');
+    }, 0) || 0;
+
+    const totalOrders = periodOrders?.length || 0;
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
     // Get customer metrics
-    const customerOrders = await db
-      .select({
-        userId: orders.userId,
-        orderCount: sql<number>`COUNT(${orders.id})`,
-        totalSpent: sql<number>`SUM(${orders.total})`,
-      })
-      .from(orders)
-      .where(eq(orders.paymentStatus, 'succeeded'))
-      .groupBy(orders.userId);
+    const { data: allSuccessfulOrders } = await supabase
+      .from('orders')
+      .select('id, user_id, total')
+      .eq('payment_status', 'succeeded');
 
-    const returningCustomers = customerOrders.filter(
-      c => Number(c.orderCount) > 1
-    ).length;
+    // Group by user to calculate customer metrics
+    const customerOrdersMap = new Map<number, { count: number; total: number }>();
+
+    allSuccessfulOrders?.forEach(order => {
+      if (!order.user_id) return;
+
+      const existing = customerOrdersMap.get(order.user_id) || { count: 0, total: 0 };
+      customerOrdersMap.set(order.user_id, {
+        count: existing.count + 1,
+        total: existing.total + parseFloat(order.total || '0'),
+      });
+    });
+
+    const customerOrders = Array.from(customerOrdersMap.values());
+    const returningCustomers = customerOrders.filter(c => c.count > 1).length;
     const totalCustomers = customerOrders.length;
     const returnCustomerRate = totalCustomers > 0
       ? (returningCustomers / totalCustomers) * 100
       : 0;
 
     const customerLifetimeValue = totalCustomers > 0
-      ? customerOrders.reduce((sum, c) => sum + Number(c.totalSpent), 0) / totalCustomers
+      ? customerOrders.reduce((sum, c) => sum + c.total, 0) / totalCustomers
       : 0;
 
     // Calculate conversion rate (orders / unique visitors)
     // Note: This requires GA4 integration for real visitor data
     // Using estimated conversion rate based on orders
-    const estimatedVisitors = Number(revenueStats.totalOrders) * 50; // Assume 2% conversion
+    const estimatedVisitors = totalOrders * 50; // Assume 2% conversion
     const conversionRate = estimatedVisitors > 0
-      ? (Number(revenueStats.totalOrders) / estimatedVisitors) * 100
+      ? (totalOrders / estimatedVisitors) * 100
       : 0;
 
     // Get comparison data for previous period
@@ -75,24 +79,23 @@ export async function GET(request: NextRequest) {
     const previousStart = new Date(dateRange.start.getTime() - periodLength);
     const previousEnd = new Date(dateRange.start);
 
-    const [previousStats] = await db
-      .select({
-        totalRevenue: sql<number>`COALESCE(SUM(${orders.total}), 0)`,
-        totalOrders: sql<number>`COUNT(${orders.id})`,
-      })
-      .from(orders)
-      .where(
-        and(
-          gte(orders.createdAt, previousStart),
-          lte(orders.createdAt, previousEnd),
-          eq(orders.paymentStatus, 'succeeded')
-        )
-      );
+    const { data: previousOrders } = await supabase
+      .from('orders')
+      .select('id, total')
+      .gte('created_at', previousStart.toISOString())
+      .lte('created_at', previousEnd.toISOString())
+      .eq('payment_status', 'succeeded');
+
+    const previousRevenue = previousOrders?.reduce((sum, order) => {
+      return sum + parseFloat(order.total || '0');
+    }, 0) || 0;
+
+    const previousOrdersCount = previousOrders?.length || 0;
 
     const metrics: AnalyticsMetrics = {
-      totalRevenue: Number(revenueStats.totalRevenue),
-      totalOrders: Number(revenueStats.totalOrders),
-      averageOrderValue: Number(revenueStats.avgOrderValue),
+      totalRevenue,
+      totalOrders,
+      averageOrderValue: avgOrderValue,
       conversionRate,
       returnCustomerRate,
       customerLifetimeValue,
@@ -106,8 +109,8 @@ export async function GET(request: NextRequest) {
         end: dateRange.end.toISOString(),
       },
       comparison: {
-        revenue: Number(previousStats.totalRevenue),
-        orders: Number(previousStats.totalOrders),
+        revenue: previousRevenue,
+        orders: previousOrdersCount,
       },
     });
   } catch (error) {

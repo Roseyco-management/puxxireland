@@ -2,9 +2,7 @@ import { getUser } from '@/lib/db/queries';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { AccountNav } from '@/components/account/AccountNav';
-import { db } from '@/lib/db/drizzle';
-import { profiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 
 // Force dynamic rendering for all account pages
 export const dynamic = 'force-dynamic';
@@ -17,21 +15,18 @@ export default async function AccountLayout({
   const user = await getUser();
 
   if (!user) {
-    redirect('/sign-in');
+    redirect('/login');
   }
 
-  if (!db) {
-    throw new Error('Database not configured');
-  }
+  const supabase = getSupabaseClient();
 
   // Get user profile
-  const userProfile = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.userId, user.id))
-    .limit(1);
-
-  const profile = userProfile[0] || null;
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', user.id)
+    .limit(1)
+    .single();
 
   return (
     <div className="min-h-screen bg-gray-50">

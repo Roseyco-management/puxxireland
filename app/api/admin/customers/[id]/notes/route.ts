@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { customerNotes, users } from '@/lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 
 /**
  * POST /api/admin/customers/[id]/notes
@@ -14,7 +12,7 @@ export async function POST(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
-    const db = getDb();
+    const supabase = getSupabaseClient();
     const body = await request.json();
     const { note, createdBy } = body;
 
@@ -26,14 +24,26 @@ export async function POST(
     }
 
     // Insert the note
-    const [newNote] = await db
-      .insert(customerNotes)
-      .values({
-        userId: customerId,
+    const { data: newNote, error } = await supabase
+      .from('customer_notes')
+      .insert({
+        user_id: customerId,
         note,
-        createdBy: parseInt(createdBy),
+        created_by: parseInt(createdBy),
       })
-      .returning();
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding customer note:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to add customer note',
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -62,34 +72,46 @@ export async function GET(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
-    const notes = await db
-      .select({
-        id: customerNotes.id,
-        note: customerNotes.note,
-        createdAt: customerNotes.createdAt,
-        updatedAt: customerNotes.updatedAt,
-        createdBy: customerNotes.createdBy,
-        createdByName: users.name,
-        createdByEmail: users.email,
-      })
-      .from(customerNotes)
-      .leftJoin(users, eq(customerNotes.createdBy, users.id))
-      .where(eq(customerNotes.userId, customerId))
-      .orderBy(desc(customerNotes.createdAt));
+    const { data: notes, error } = await supabase
+      .from('customer_notes')
+      .select(`
+        id,
+        note,
+        created_at,
+        updated_at,
+        created_by,
+        users (
+          name,
+          email
+        )
+      `)
+      .eq('user_id', customerId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching customer notes:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to fetch customer notes',
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      notes: notes.map((note) => ({
+      notes: (notes || []).map((note: any) => ({
         id: note.id,
         note: note.note,
-        createdAt: note.createdAt,
-        updatedAt: note.updatedAt,
+        createdAt: note.created_at,
+        updatedAt: note.updated_at,
         createdBy: {
-          id: note.createdBy,
-          name: note.createdByName,
-          email: note.createdByEmail,
+          id: note.created_by,
+          name: note.users?.name || null,
+          email: note.users?.email || null,
         },
       })),
     });

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { products, productCategories, categories } from '@/lib/db/schema';
-import { eq, and, desc, asc, sql, ilike, or } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 import { productSchema } from '@/lib/validations/product';
 
 /**
@@ -19,7 +17,7 @@ import { productSchema } from '@/lib/validations/product';
  * - limit: number - Items per page
  */
 export async function GET(request: NextRequest) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
   try {
     const searchParams = request.nextUrl.searchParams;
 
@@ -29,120 +27,113 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || 'all';
     const featured = searchParams.get('featured') === 'true';
     const sortBy = searchParams.get('sort') || 'created';
-    const sortOrder = searchParams.get('order') || 'desc';
+    const sortOrder = (searchParams.get('order') || 'desc') as 'asc' | 'desc';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
-
-    // Build query conditions
-    const conditions = [];
-
-    // Status filter
-    if (status === 'active') {
-      conditions.push(eq(products.isActive, true));
-    } else if (status === 'inactive') {
-      conditions.push(eq(products.isActive, false));
-    }
-
-    // Featured filter
-    if (featured) {
-      conditions.push(eq(products.isFeatured, true));
-    }
-
-    // Search filter
-    if (search) {
-      conditions.push(
-        or(
-          ilike(products.name, `%${search}%`),
-          ilike(products.sku, `%${search}%`)
-        )
-      );
-    }
-
-    // Determine sorting
-    let orderColumn;
-    switch (sortBy) {
-      case 'price':
-        orderColumn = products.price;
-        break;
-      case 'stock':
-        orderColumn = products.stockQuantity;
-        break;
-      case 'name':
-        orderColumn = products.name;
-        break;
-      case 'created':
-      default:
-        orderColumn = products.createdAt;
-        break;
-    }
-
-    const orderFunc = sortOrder === 'asc' ? asc : desc;
 
     // Calculate offset
     const offset = (page - 1) * limit;
 
-    // Build the query
-    let query = db
-      .select({
-        id: products.id,
-        name: products.name,
-        slug: products.slug,
-        description: products.description,
-        price: products.price,
-        compareAtPrice: products.compareAtPrice,
-        sku: products.sku,
-        nicotineStrength: products.nicotineStrength,
-        flavor: products.flavor,
-        pouchesPerCan: products.pouchesPerCan,
-        ingredients: products.ingredients,
-        usageInstructions: products.usageInstructions,
-        imageUrl: products.imageUrl,
-        imageGallery: products.imageGallery,
-        stockQuantity: products.stockQuantity,
-        isActive: products.isActive,
-        isFeatured: products.isFeatured,
-        metaTitle: products.metaTitle,
-        metaDescription: products.metaDescription,
-        createdAt: products.createdAt,
-        updatedAt: products.updatedAt,
-      })
-      .from(products);
+    // Start building query
+    let query = supabase.from('products').select('*', { count: 'exact' });
 
-    // Add category filter if specified
-    if (categorySlug) {
-      query = query
-        .innerJoin(
-          productCategories,
-          eq(products.id, productCategories.productId)
-        )
-        .innerJoin(categories, eq(productCategories.categoryId, categories.id))
-        .where(and(...conditions, eq(categories.slug, categorySlug))) as any;
-    } else if (conditions.length > 0) {
-      query = query.where(and(...conditions)) as any;
+    // Status filter
+    if (status === 'active') {
+      query = query.eq('is_active', true);
+    } else if (status === 'inactive') {
+      query = query.eq('is_active', false);
     }
 
-    // Get total count
-    const countQuery = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(products)
-      .where(conditions.length > 0 ? and(...conditions) : undefined);
+    // Featured filter
+    if (featured) {
+      query = query.eq('is_featured', true);
+    }
 
-    const totalCount = countQuery[0]?.count || 0;
+    // Search filter
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
+    }
 
-    // Execute query with pagination
-    const allProducts = await query
-      .orderBy(orderFunc(orderColumn))
-      .limit(limit)
-      .offset(offset);
+    // Category filter
+    if (categorySlug) {
+      // For category filtering, we need to join through product_categories
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .single();
+
+      if (categoryData) {
+        const { data: productIds } = await supabase
+          .from('product_categories')
+          .select('product_id')
+          .eq('category_id', categoryData.id);
+
+        if (productIds && productIds.length > 0) {
+          const ids = productIds.map((p: any) => p.product_id);
+          query = query.in('id', ids);
+        } else {
+          // No products in this category
+          return NextResponse.json({
+            success: true,
+            count: 0,
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+            products: [],
+          });
+        }
+      }
+    }
+
+    // Determine sorting column
+    let sortColumn: string;
+    switch (sortBy) {
+      case 'price':
+        sortColumn = 'price';
+        break;
+      case 'stock':
+        sortColumn = 'stock_quantity';
+        break;
+      case 'name':
+        sortColumn = 'name';
+        break;
+      case 'created':
+      default:
+        sortColumn = 'created_at';
+        break;
+    }
+
+    // Apply sorting and pagination
+    query = query
+      .order(sortColumn, { ascending: sortOrder === 'asc' })
+      .range(offset, offset + limit - 1);
+
+    // Execute query
+    const { data: allProducts, error, count } = await query;
+
+    if (error) {
+      console.error('Error fetching products:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to fetch products',
+        },
+        { status: 500 }
+      );
+    }
+
+    const totalCount = count || 0;
 
     return NextResponse.json({
       success: true,
-      count: allProducts.length,
+      count: allProducts?.length || 0,
       total: totalCount,
       page,
       limit,
       totalPages: Math.ceil(totalCount / limit),
-      products: allProducts,
+      products: allProducts || [],
     });
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -161,7 +152,7 @@ export async function GET(request: NextRequest) {
  * Creates a new product
  */
 export async function POST(request: NextRequest) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
   try {
     const body = await request.json();
 
@@ -178,13 +169,14 @@ export async function POST(request: NextRequest) {
 
     // Check if SKU already exists
     if (data.sku) {
-      const existingSKU = await db
-        .select()
-        .from(products)
-        .where(eq(products.sku, data.sku))
-        .limit(1);
+      const { data: existingSKU } = await supabase
+        .from('products')
+        .select('id')
+        .eq('sku', data.sku)
+        .limit(1)
+        .single();
 
-      if (existingSKU.length > 0) {
+      if (existingSKU) {
         return NextResponse.json(
           { error: 'A product with this SKU already exists' },
           { status: 409 }
@@ -193,13 +185,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if slug already exists
-    const existingSlug = await db
-      .select()
-      .from(products)
-      .where(eq(products.slug, data.slug))
-      .limit(1);
+    const { data: existingSlug } = await supabase
+      .from('products')
+      .select('id')
+      .eq('slug', data.slug)
+      .limit(1)
+      .single();
 
-    if (existingSlug.length > 0) {
+    if (existingSlug) {
       return NextResponse.json(
         { error: 'A product with this URL slug already exists' },
         { status: 409 }
@@ -207,44 +200,54 @@ export async function POST(request: NextRequest) {
     }
 
     // Create product
-    const [newProduct] = await db
-      .insert(products)
-      .values({
+    const { data: newProduct, error: productError } = await supabase
+      .from('products')
+      .insert({
         name: data.name,
         slug: data.slug,
         description: data.description,
         price: data.price.toString(),
-        compareAtPrice: data.compareAtPrice ? data.compareAtPrice.toString() : null,
+        compare_at_price: data.compareAtPrice ? data.compareAtPrice.toString() : null,
         sku: data.sku,
-        nicotineStrength: data.nicotineStrength,
+        nicotine_strength: data.nicotineStrength,
         flavor: data.flavor,
-        flavorProfile: data.flavorProfile,
-        pouchesPerCan: data.pouchesPerCan,
-        reorderPoint: data.reorderPoint,
+        flavor_profile: data.flavorProfile,
+        pouches_per_can: data.pouchesPerCan,
+        reorder_point: data.reorderPoint,
         ingredients: data.ingredients,
-        usageInstructions: data.usageInstructions,
-        imageUrl: data.imageUrl,
-        imageGallery: data.imageGallery,
-        stockQuantity: data.stockQuantity,
-        isActive: data.isActive,
-        isFeatured: data.isFeatured,
-        metaTitle: data.metaTitle,
-        metaDescription: data.metaDescription,
+        usage_instructions: data.usageInstructions,
+        image_url: data.imageUrl,
+        image_gallery: data.imageGallery,
+        stock_quantity: data.stockQuantity,
+        is_active: data.isActive,
+        is_featured: data.isFeatured,
+        meta_title: data.metaTitle,
+        meta_description: data.metaDescription,
       })
-      .returning();
+      .select()
+      .single();
+
+    if (productError || !newProduct) {
+      console.error('Error creating product:', productError);
+      return NextResponse.json(
+        { error: 'Failed to create product' },
+        { status: 500 }
+      );
+    }
 
     // Add to category
     if (data.category) {
-      const [categoryRecord] = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.slug, data.category))
-        .limit(1);
+      const { data: categoryRecord } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', data.category)
+        .limit(1)
+        .single();
 
       if (categoryRecord) {
-        await db.insert(productCategories).values({
-          productId: newProduct.id,
-          categoryId: categoryRecord.id,
+        await supabase.from('product_categories').insert({
+          product_id: newProduct.id,
+          category_id: categoryRecord.id,
         });
       }
     }

@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/db/queries';
-import { getDb } from '@/lib/db/drizzle';
-import { users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 import { comparePasswords, hashPassword } from '@/lib/auth/session';
 
 export async function PUT(request: Request) {
@@ -13,7 +11,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
     const body = await request.json();
     const { currentPassword, newPassword } = body;
@@ -36,7 +34,7 @@ export async function PUT(request: Request) {
     // Verify current password
     const isValidPassword = await comparePasswords(
       currentPassword,
-      user.passwordHash
+      user.password_hash
     );
 
     if (!isValidPassword) {
@@ -50,13 +48,21 @@ export async function PUT(request: Request) {
     const newPasswordHash = await hashPassword(newPassword);
 
     // Update password
-    await db
-      .update(users)
-      .set({
-        passwordHash: newPasswordHash,
-        updatedAt: new Date(),
+    const { error } = await supabase
+      .from('users')
+      .update({
+        password_hash: newPasswordHash,
+        updated_at: new Date().toISOString(),
       })
-      .where(eq(users.id, user.id));
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error updating password:', error);
+      return NextResponse.json(
+        { error: 'Failed to update password' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

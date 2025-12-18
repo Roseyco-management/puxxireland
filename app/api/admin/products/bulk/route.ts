@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { products } from '@/lib/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 import { z } from 'zod';
 
 const bulkActionSchema = z.object({
@@ -18,7 +16,7 @@ const bulkActionSchema = z.object({
  * - productIds: number[] - Array of product IDs
  */
 export async function POST(request: NextRequest) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
   try {
     const body = await request.json();
 
@@ -34,12 +32,12 @@ export async function POST(request: NextRequest) {
     const { action, productIds } = result.data;
 
     // Check if products exist
-    const existingProducts = await db
-      .select({ id: products.id })
-      .from(products)
-      .where(inArray(products.id, productIds));
+    const { data: existingProducts } = await supabase
+      .from('products')
+      .select('id')
+      .in('id', productIds);
 
-    if (existingProducts.length !== productIds.length) {
+    if (!existingProducts || existingProducts.length !== productIds.length) {
       return NextResponse.json(
         { error: 'One or more products not found' },
         { status: 404 }
@@ -47,26 +45,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform bulk action
-    let updateData: Partial<typeof products.$inferInsert> = {
-      updatedAt: new Date(),
+    let updateData: any = {
+      updated_at: new Date().toISOString(),
     };
 
     switch (action) {
       case 'activate':
-        updateData.isActive = true;
+        updateData.is_active = true;
         break;
       case 'deactivate':
-        updateData.isActive = false;
+        updateData.is_active = false;
         break;
       case 'delete':
         // Soft delete
-        updateData.isActive = false;
+        updateData.is_active = false;
         break;
       case 'feature':
-        updateData.isFeatured = true;
+        updateData.is_featured = true;
         break;
       case 'unfeature':
-        updateData.isFeatured = false;
+        updateData.is_featured = false;
         break;
       default:
         return NextResponse.json(
@@ -75,10 +73,18 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    await db
-      .update(products)
-      .set(updateData)
-      .where(inArray(products.id, productIds));
+    const { error: updateError } = await supabase
+      .from('products')
+      .update(updateData)
+      .in('id', productIds);
+
+    if (updateError) {
+      console.error('Error performing bulk action:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to perform bulk action' },
+        { status: 500 }
+      );
+    }
 
     const actionMessages = {
       activate: 'activated',
@@ -110,7 +116,7 @@ export async function POST(request: NextRequest) {
  * - ids: comma-separated list of product IDs
  */
 export async function DELETE(request: NextRequest) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
   try {
     const searchParams = request.nextUrl.searchParams;
     const idsParam = searchParams.get('ids');
@@ -132,12 +138,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if products exist
-    const existingProducts = await db
-      .select({ id: products.id })
-      .from(products)
-      .where(inArray(products.id, productIds));
+    const { data: existingProducts } = await supabase
+      .from('products')
+      .select('id')
+      .in('id', productIds);
 
-    if (existingProducts.length === 0) {
+    if (!existingProducts || existingProducts.length === 0) {
       return NextResponse.json(
         { error: 'No products found' },
         { status: 404 }
@@ -146,9 +152,18 @@ export async function DELETE(request: NextRequest) {
 
     // Hard delete (permanent deletion)
     // Note: This will cascade delete related records due to foreign key constraints
-    await db
-      .delete(products)
-      .where(inArray(products.id, productIds));
+    const { error: deleteError } = await supabase
+      .from('products')
+      .delete()
+      .in('id', productIds);
+
+    if (deleteError) {
+      console.error('Error deleting products:', deleteError);
+      return NextResponse.json(
+        { error: 'Failed to delete products' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

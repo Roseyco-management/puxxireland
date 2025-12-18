@@ -73,9 +73,12 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
   // Set session
   await setSession(foundUser);
 
-  // Redirect to account page
-  // TODO: Redirect admins to /admin once admin routes are converted to Supabase
-  redirect('/account');
+  // Redirect based on user role
+  if (foundUser.role === 'admin' || foundUser.role === 'manager' || foundUser.role === 'support') {
+    redirect('/admin');
+  } else {
+    redirect('/account');
+  }
 });
 
 // Sign Up Schema
@@ -115,9 +118,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
     termsAccepted,
   } = data;
 
-  if (!db) {
-    throw new Error('Database not configured');
-  }
+  const supabase = getSupabaseClient();
 
   // Check if terms are accepted
   if (termsAccepted !== 'on') {
@@ -144,13 +145,14 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   }
 
   // Check if user already exists
-  const existingUser = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const { data: existingUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('email', email)
+    .limit(1)
+    .single();
 
-  if (existingUser.length > 0) {
+  if (existingUser) {
     return {
       error: 'An account with this email already exists. Please sign in instead.',
     };
@@ -161,31 +163,39 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 
   // Create user
   const fullName = `${firstName} ${lastName}`;
-  const newUser: NewUser = {
-    name: fullName,
-    email,
-    passwordHash,
-    role: 'member', // Default role for e-commerce users
-  };
 
-  const [createdUser] = await db.insert(users).values(newUser).returning();
+  const { data: createdUser, error: userError } = await supabase
+    .from('users')
+    .insert({
+      name: fullName,
+      email,
+      password_hash: passwordHash,
+      role: 'member', // Default role for e-commerce users
+    })
+    .select()
+    .single();
 
-  if (!createdUser) {
+  if (userError || !createdUser) {
+    console.error('Error creating user:', userError);
     return {
       error: 'Failed to create user. Please try again.',
     };
   }
 
   // Create profile
-  const newProfile: NewProfile = {
-    userId: createdUser.id,
-    dateOfBirth: dob,
-    ageVerified: true, // Already verified above
-    referralSource: referralSource || null,
-    marketingConsent: marketingConsent === 'on',
-  };
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .insert({
+      user_id: createdUser.id,
+      date_of_birth: dob.toISOString(),
+      age_verified: true, // Already verified above
+      referral_source: referralSource || null,
+      marketing_consent: marketingConsent === 'on',
+    });
 
-  await db.insert(profiles).values(newProfile);
+  if (profileError) {
+    console.error('Error creating profile:', profileError);
+  }
 
   // Return success message (don't auto-login, send to login page)
   return {
@@ -203,24 +213,23 @@ export const requestPasswordReset = validatedAction(
   async (data) => {
     const { email } = data;
 
-    if (!db) {
-      throw new Error('Database not configured');
-    }
+    const supabase = getSupabaseClient();
 
     // Check if user exists
-    const userResult = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const { data: userResult } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .limit(1)
+      .single();
 
     // Always return success message to prevent email enumeration
     // In production, you would send an email here with a reset token
     // For now, we'll just return a success message
 
-    if (userResult.length > 0) {
+    if (userResult) {
       // TODO: Generate reset token and send email
-      // const resetToken = await generateResetToken(userResult[0].id);
+      // const resetToken = await generateResetToken(userResult.id);
       // await sendPasswordResetEmail(email, resetToken);
       console.log('Password reset requested for:', email);
     }

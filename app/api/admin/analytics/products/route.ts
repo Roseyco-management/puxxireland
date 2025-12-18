@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { orders, orderItems, products, cartItems } from '@/lib/db/schema';
-import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 import { getDateRangeFromPeriod } from '@/lib/analytics/utils';
 import type { TimePeriod, ProductPerformance } from '@/lib/analytics/types';
 
 export async function GET(request: NextRequest) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
   try {
     const searchParams = request.nextUrl.searchParams;
     const period = (searchParams.get('period') || 'month') as TimePeriod;
@@ -24,63 +22,85 @@ export async function GET(request: NextRequest) {
     }
 
     // Get product sales performance
-    const productSales = await db
-      .select({
-        productId: orderItems.productId,
-        productName: orderItems.productName,
-        productSku: orderItems.productSku,
-        revenue: sql<number>`COALESCE(SUM(${orderItems.total}), 0)`,
-        orders: sql<number>`COUNT(DISTINCT ${orderItems.orderId})`,
-        quantity: sql<number>`SUM(${orderItems.quantity})`,
-      })
-      .from(orderItems)
-      .innerJoin(orders, eq(orderItems.orderId, orders.id))
-      .where(
-        and(
-          gte(orders.createdAt, dateRange.start),
-          lte(orders.createdAt, dateRange.end),
-          eq(orders.paymentStatus, 'succeeded')
+    const { data: orderItems } = await supabase
+      .from('order_items')
+      .select(`
+        product_id,
+        product_name,
+        product_sku,
+        total,
+        quantity,
+        order_id,
+        orders!inner (
+          created_at,
+          payment_status
         )
-      )
-      .groupBy(orderItems.productId, orderItems.productName, orderItems.productSku)
-      .orderBy(desc(sql`SUM(${orderItems.total})`));
+      `)
+      .gte('orders.created_at', dateRange.start.toISOString())
+      .lte('orders.created_at', dateRange.end.toISOString())
+      .eq('orders.payment_status', 'succeeded');
+
+    // Group by product
+    const productSalesMap = new Map<number, {
+      name: string;
+      sku: string;
+      revenue: number;
+      orderIds: Set<number>;
+      quantity: number;
+    }>();
+
+    orderItems?.forEach((item: any) => {
+      const existing = productSalesMap.get(item.product_id) || {
+        name: item.product_name,
+        sku: item.product_sku,
+        revenue: 0,
+        orderIds: new Set(),
+        quantity: 0,
+      };
+
+      productSalesMap.set(item.product_id, {
+        name: item.product_name,
+        sku: item.product_sku,
+        revenue: existing.revenue + parseFloat(item.total || '0'),
+        orderIds: existing.orderIds.add(item.order_id),
+        quantity: existing.quantity + (item.quantity || 0),
+      });
+    });
+
+    const productSales = Array.from(productSalesMap.entries()).map(([productId, data]) => ({
+      productId,
+      productName: data.name,
+      productSku: data.sku,
+      revenue: data.revenue,
+      orders: data.orderIds.size,
+      quantity: data.quantity,
+    })).sort((a, b) => b.revenue - a.revenue);
 
     // Get add to cart data
-    const addToCartData = await db
-      .select({
-        productId: cartItems.productId,
-        addToCartCount: sql<number>`COUNT(DISTINCT ${cartItems.userId})`,
-      })
-      .from(cartItems)
-      .where(
-        and(
-          gte(cartItems.createdAt, dateRange.start),
-          lte(cartItems.createdAt, dateRange.end)
-        )
-      )
-      .groupBy(cartItems.productId);
+    const { data: cartItems } = await supabase
+      .from('cart_items')
+      .select('product_id, user_id')
+      .gte('created_at', dateRange.start.toISOString())
+      .lte('created_at', dateRange.end.toISOString());
 
-    const addToCartMap = new Map(
-      addToCartData.map(item => [Number(item.productId), Number(item.addToCartCount)])
-    );
+    const addToCartMap = new Map<number, Set<number>>();
+    cartItems?.forEach((item: any) => {
+      const users = addToCartMap.get(item.product_id) || new Set();
+      users.add(item.user_id);
+      addToCartMap.set(item.product_id, users);
+    });
 
     // Get all products with stock info
-    const allProducts = await db
-      .select({
-        id: products.id,
-        name: products.name,
-        sku: products.sku,
-        stockQuantity: products.stockQuantity,
-        price: products.price,
-      })
-      .from(products)
-      .where(eq(products.isActive, true));
+    const { data: allProducts } = await supabase
+      .from('products')
+      .select('id, name, sku, stock_quantity, price')
+      .eq('is_active', true);
 
     // Combine data into product performance metrics
-    const productPerformance: ProductPerformance[] = allProducts.map(product => {
-      const sales = productSales.find(s => Number(s.productId) === product.id);
-      const addToCarts = addToCartMap.get(product.id) || 0;
-      const purchases = sales ? Number(sales.orders) : 0;
+    const productPerformance: ProductPerformance[] = (allProducts || []).map((product: any) => {
+      const sales = productSales.find(s => s.productId === product.id);
+      const addToCarts = addToCartMap.get(product.id)?.size || 0;
+      const purchases = sales ? sales.orders : 0;
 
       // Calculate rates (using mock view data - integrate with GA4 for real data)
       const views = Math.max(addToCarts * 3, purchases * 5); // Estimate based on cart adds
@@ -94,9 +114,9 @@ export async function GET(request: NextRequest) {
         views,
         addToCartRate,
         purchaseRate,
-        revenue: sales ? Number(sales.revenue) : 0,
+        revenue: sales ? sales.revenue : 0,
         profitMargin: null, // Would need cost data
-        stockQuantity: product.stockQuantity,
+        stockQuantity: product.stock_quantity,
       };
     });
 
@@ -105,11 +125,11 @@ export async function GET(request: NextRequest) {
 
     // Get top products by revenue (for charts)
     const topProducts = productSales.slice(0, 10).map(product => ({
-      id: Number(product.productId),
+      id: product.productId,
       name: product.productName,
-      revenue: Number(product.revenue),
-      orders: Number(product.orders),
-      quantity: Number(product.quantity),
+      revenue: product.revenue,
+      orders: product.orders,
+      quantity: product.quantity,
     }));
 
     return NextResponse.json({

@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Toaster } from "sonner";
-import { createClient } from "@/lib/supabase/client";
 
 // Force dynamic rendering for all admin pages
 export const dynamic = 'force-dynamic';
@@ -26,29 +25,34 @@ export default function AdminLayout({
 
   useEffect(() => {
     async function checkAuth() {
-      const supabase = createClient();
+      try {
+        // Check if user is authenticated using custom auth
+        const response = await fetch('/api/auth/me');
 
-      const { data: { session } } = await supabase.auth.getSession();
+        if (!response.ok) {
+          router.push('/login');
+          return;
+        }
 
-      if (!session) {
+        const { user } = await response.json();
+
+        if (!user) {
+          router.push('/login');
+          return;
+        }
+
+        // Check user role
+        if (!['admin', 'manager', 'support'].includes(user.role)) {
+          router.push('/');
+          return;
+        }
+
+        setUserRole(user.role);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Auth check error:', error);
         router.push('/login');
-        return;
       }
-
-      // Check user role
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-
-      if (!profile || !['admin', 'manager', 'support'].includes(profile.role)) {
-        router.push('/');
-        return;
-      }
-
-      setUserRole(profile.role);
-      setIsLoading(false);
     }
 
     checkAuth();

@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/db/queries';
-import { getDb } from '@/lib/db/drizzle';
-import { addresses } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 
 export async function GET() {
   try {
@@ -12,11 +10,19 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = getDb();
-    const userAddresses = await db
-      .select()
-      .from(addresses)
-      .where(eq(addresses.userId, user.id));
+    const supabase = getSupabaseClient();
+    const { data: userAddresses, error } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error fetching addresses:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch addresses' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ addresses: userAddresses });
   } catch (error) {
@@ -36,7 +42,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
     const body = await request.json();
     const {
@@ -62,41 +68,50 @@ export async function POST(request: Request) {
 
     // If setting as default, unset other defaults
     if (isDefaultShipping) {
-      await db
-        .update(addresses)
-        .set({ isDefaultShipping: false })
-        .where(eq(addresses.userId, user.id));
+      await supabase
+        .from('addresses')
+        .update({ is_default_shipping: false })
+        .eq('user_id', user.id);
     }
 
     if (isDefaultBilling) {
-      await db
-        .update(addresses)
-        .set({ isDefaultBilling: false })
-        .where(eq(addresses.userId, user.id));
+      await supabase
+        .from('addresses')
+        .update({ is_default_billing: false })
+        .eq('user_id', user.id);
     }
 
     // Create new address
-    const newAddress = await db
-      .insert(addresses)
-      .values({
-        userId: user.id,
+    const { data: newAddress, error: insertError } = await supabase
+      .from('addresses')
+      .insert({
+        user_id: user.id,
         name,
-        addressLine1,
-        addressLine2: addressLine2 || null,
+        address_line1: addressLine1,
+        address_line2: addressLine2 || null,
         city,
         county: county || null,
         eircode: eircode || null,
         country: country || 'IE',
         phone: phone || null,
-        isDefaultShipping: isDefaultShipping || false,
-        isDefaultBilling: isDefaultBilling || false,
+        is_default_shipping: isDefaultShipping || false,
+        is_default_billing: isDefaultBilling || false,
       })
-      .returning();
+      .select()
+      .single();
+
+    if (insertError || !newAddress) {
+      console.error('Error creating address:', insertError);
+      return NextResponse.json(
+        { error: 'Failed to create address' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Address added successfully',
-      address: newAddress[0],
+      address: newAddress,
     });
   } catch (error) {
     console.error('Error creating address:', error);

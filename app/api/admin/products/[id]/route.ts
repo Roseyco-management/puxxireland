@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { products, productCategories, categories } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 import { productSchema } from '@/lib/validations/product';
 
 /**
@@ -15,7 +13,7 @@ export async function GET(
   try {
     const { id } = await params;
     const productId = parseInt(id);
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
     if (isNaN(productId)) {
       return NextResponse.json(
@@ -24,13 +22,14 @@ export async function GET(
       );
     }
 
-    const [product] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', productId)
+      .limit(1)
+      .single();
 
-    if (!product) {
+    if (error || !product) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
@@ -38,17 +37,22 @@ export async function GET(
     }
 
     // Get category
-    const productCategoryRel = await db
-      .select({
-        categorySlug: categories.slug,
-        categoryName: categories.name,
-      })
-      .from(productCategories)
-      .innerJoin(categories, eq(productCategories.categoryId, categories.id))
-      .where(eq(productCategories.productId, productId))
-      .limit(1);
+    const { data: productCategoryRel } = await supabase
+      .from('product_categories')
+      .select(`
+        categories (
+          slug,
+          name
+        )
+      `)
+      .eq('product_id', productId)
+      .limit(1)
+      .single();
 
-    const category = productCategoryRel[0]?.categorySlug || null;
+    const categoryData = Array.isArray(productCategoryRel?.categories)
+      ? productCategoryRel.categories[0]
+      : productCategoryRel?.categories;
+    const category = categoryData?.slug || null;
 
     return NextResponse.json({
       success: true,
@@ -77,7 +81,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const productId = parseInt(id);
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
     if (isNaN(productId)) {
       return NextResponse.json(
@@ -100,13 +104,14 @@ export async function PUT(
     const data = result.data;
 
     // Check if product exists
-    const [existingProduct] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
+    const { data: existingProduct, error: fetchError } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', productId)
+      .limit(1)
+      .single();
 
-    if (!existingProduct) {
+    if (fetchError || !existingProduct) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
@@ -115,13 +120,14 @@ export async function PUT(
 
     // Check if SKU is being changed and if it conflicts
     if (data.sku && data.sku !== existingProduct.sku) {
-      const existingSKU = await db
-        .select()
-        .from(products)
-        .where(eq(products.sku, data.sku))
-        .limit(1);
+      const { data: existingSKU } = await supabase
+        .from('products')
+        .select('id')
+        .eq('sku', data.sku)
+        .limit(1)
+        .single();
 
-      if (existingSKU.length > 0 && existingSKU[0].id !== productId) {
+      if (existingSKU && existingSKU.id !== productId) {
         return NextResponse.json(
           { error: 'A product with this SKU already exists' },
           { status: 409 }
@@ -131,13 +137,14 @@ export async function PUT(
 
     // Check if slug is being changed and if it conflicts
     if (data.slug !== existingProduct.slug) {
-      const existingSlug = await db
-        .select()
-        .from(products)
-        .where(eq(products.slug, data.slug))
-        .limit(1);
+      const { data: existingSlug } = await supabase
+        .from('products')
+        .select('id')
+        .eq('slug', data.slug)
+        .limit(1)
+        .single();
 
-      if (existingSlug.length > 0 && existingSlug[0].id !== productId) {
+      if (existingSlug && existingSlug.id !== productId) {
         return NextResponse.json(
           { error: 'A product with this URL slug already exists' },
           { status: 409 }
@@ -146,52 +153,63 @@ export async function PUT(
     }
 
     // Update product
-    const [updatedProduct] = await db
-      .update(products)
-      .set({
+    const { data: updatedProduct, error: updateError } = await supabase
+      .from('products')
+      .update({
         name: data.name,
         slug: data.slug,
         description: data.description,
         price: data.price.toString(),
-        compareAtPrice: data.compareAtPrice ? data.compareAtPrice.toString() : null,
+        compare_at_price: data.compareAtPrice ? data.compareAtPrice.toString() : null,
         sku: data.sku,
-        nicotineStrength: data.nicotineStrength,
+        nicotine_strength: data.nicotineStrength,
         flavor: data.flavor,
-        flavorProfile: data.flavorProfile,
-        pouchesPerCan: data.pouchesPerCan,
-        reorderPoint: data.reorderPoint,
+        flavor_profile: data.flavorProfile,
+        pouches_per_can: data.pouchesPerCan,
+        reorder_point: data.reorderPoint,
         ingredients: data.ingredients,
-        usageInstructions: data.usageInstructions,
-        imageUrl: data.imageUrl,
-        imageGallery: data.imageGallery,
-        stockQuantity: data.stockQuantity,
-        isActive: data.isActive,
-        isFeatured: data.isFeatured,
-        metaTitle: data.metaTitle,
-        metaDescription: data.metaDescription,
-        updatedAt: new Date(),
+        usage_instructions: data.usageInstructions,
+        image_url: data.imageUrl,
+        image_gallery: data.imageGallery,
+        stock_quantity: data.stockQuantity,
+        is_active: data.isActive,
+        is_featured: data.isFeatured,
+        meta_title: data.metaTitle,
+        meta_description: data.metaDescription,
+        updated_at: new Date().toISOString(),
       })
-      .where(eq(products.id, productId))
-      .returning();
+      .eq('id', productId)
+      .select()
+      .single();
+
+    if (updateError || !updatedProduct) {
+      console.error('Error updating product:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to update product' },
+        { status: 500 }
+      );
+    }
 
     // Update category if changed
     if (data.category) {
       // Remove existing category associations
-      await db
-        .delete(productCategories)
-        .where(eq(productCategories.productId, productId));
+      await supabase
+        .from('product_categories')
+        .delete()
+        .eq('product_id', productId);
 
       // Add new category
-      const [categoryRecord] = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.slug, data.category))
-        .limit(1);
+      const { data: categoryRecord } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', data.category)
+        .limit(1)
+        .single();
 
       if (categoryRecord) {
-        await db.insert(productCategories).values({
-          productId: productId,
-          categoryId: categoryRecord.id,
+        await supabase.from('product_categories').insert({
+          product_id: productId,
+          category_id: categoryRecord.id,
         });
       }
     }
@@ -212,7 +230,7 @@ export async function PUT(
 
 /**
  * DELETE /api/admin/products/[id]
- * Soft deletes a product (sets isActive to false)
+ * Soft deletes a product (sets is_active to false)
  */
 export async function DELETE(
   request: NextRequest,
@@ -221,7 +239,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const productId = parseInt(id);
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
     if (isNaN(productId)) {
       return NextResponse.json(
@@ -231,27 +249,36 @@ export async function DELETE(
     }
 
     // Check if product exists
-    const [existingProduct] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
+    const { data: existingProduct, error: fetchError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', productId)
+      .limit(1)
+      .single();
 
-    if (!existingProduct) {
+    if (fetchError || !existingProduct) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
       );
     }
 
-    // Soft delete (set isActive to false)
-    await db
-      .update(products)
-      .set({
-        isActive: false,
-        updatedAt: new Date(),
+    // Soft delete (set is_active to false)
+    const { error: deleteError } = await supabase
+      .from('products')
+      .update({
+        is_active: false,
+        updated_at: new Date().toISOString(),
       })
-      .where(eq(products.id, productId));
+      .eq('id', productId);
+
+    if (deleteError) {
+      console.error('Error deleting product:', deleteError);
+      return NextResponse.json(
+        { error: 'Failed to delete product' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

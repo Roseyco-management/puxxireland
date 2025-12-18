@@ -1,6 +1,4 @@
-import { desc, and, eq, isNull } from 'drizzle-orm';
-import { getDb } from './drizzle';
-import { activityLogs, teamMembers, teams, users } from './schema';
+import { getSupabaseClient } from './supabase';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
 
@@ -23,29 +21,36 @@ export async function getUser() {
     return null;
   }
 
-  const db = getDb();
-  const user = await db
-    .select()
-    .from(users)
-    .where(and(eq(users.id, sessionData.user.id), isNull(users.deletedAt)))
-    .limit(1);
+  const supabase = getSupabaseClient();
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', sessionData.user.id)
+    .is('deleted_at', null)
+    .limit(1)
+    .single();
 
-  if (user.length === 0) {
+  if (error || !user) {
     return null;
   }
 
-  return user[0];
+  return user;
 }
 
 export async function getTeamByStripeCustomerId(customerId: string) {
-  const db = getDb();
-  const result = await db
-    .select()
-    .from(teams)
-    .where(eq(teams.stripeCustomerId, customerId))
-    .limit(1);
+  const supabase = getSupabaseClient();
+  const { data: result, error } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('stripe_customer_id', customerId)
+    .limit(1)
+    .single();
 
-  return result.length > 0 ? result[0] : null;
+  if (error) {
+    return null;
+  }
+
+  return result;
 }
 
 export async function updateTeamSubscription(
@@ -57,29 +62,46 @@ export async function updateTeamSubscription(
     subscriptionStatus: string;
   }
 ) {
-  const db = getDb();
-  await db
-    .update(teams)
-    .set({
-      ...subscriptionData,
-      updatedAt: new Date()
+  const supabase = getSupabaseClient();
+  await supabase
+    .from('teams')
+    .update({
+      stripe_subscription_id: subscriptionData.stripeSubscriptionId,
+      stripe_product_id: subscriptionData.stripeProductId,
+      plan_name: subscriptionData.planName,
+      subscription_status: subscriptionData.subscriptionStatus,
+      updated_at: new Date().toISOString()
     })
-    .where(eq(teams.id, teamId));
+    .eq('id', teamId);
 }
 
 export async function getUserWithTeam(userId: number) {
-  const db = getDb();
-  const result = await db
-    .select({
-      user: users,
-      teamId: teamMembers.teamId
-    })
-    .from(users)
-    .leftJoin(teamMembers, eq(users.id, teamMembers.userId))
-    .where(eq(users.id, userId))
-    .limit(1);
+  const supabase = getSupabaseClient();
 
-  return result[0];
+  // Get user
+  const { data: user, error: userError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .limit(1)
+    .single();
+
+  if (userError || !user) {
+    return null;
+  }
+
+  // Get team membership
+  const { data: teamMember, error: teamError } = await supabase
+    .from('team_members')
+    .select('team_id')
+    .eq('user_id', userId)
+    .limit(1)
+    .single();
+
+  return {
+    user,
+    teamId: teamMember?.team_id || null
+  };
 }
 
 export async function getActivityLogs() {
@@ -88,20 +110,36 @@ export async function getActivityLogs() {
     throw new Error('User not authenticated');
   }
 
-  const db = getDb();
-  return await db
-    .select({
-      id: activityLogs.id,
-      action: activityLogs.action,
-      timestamp: activityLogs.timestamp,
-      ipAddress: activityLogs.ipAddress,
-      userName: users.name
-    })
-    .from(activityLogs)
-    .leftJoin(users, eq(activityLogs.userId, users.id))
-    .where(eq(activityLogs.userId, user.id))
-    .orderBy(desc(activityLogs.timestamp))
+  const supabase = getSupabaseClient();
+  const { data: logs, error } = await supabase
+    .from('activity_logs')
+    .select(`
+      id,
+      action,
+      timestamp,
+      ip_address,
+      users (
+        name
+      )
+    `)
+    .eq('user_id', user.id)
+    .order('timestamp', { ascending: false })
     .limit(10);
+
+  if (error) {
+    throw new Error('Failed to fetch activity logs');
+  }
+
+  return logs?.map(log => {
+    const userData = Array.isArray(log.users) ? log.users[0] : log.users;
+    return {
+      id: log.id,
+      action: log.action,
+      timestamp: log.timestamp,
+      ipAddress: log.ip_address,
+      userName: userData?.name || null
+    };
+  }) || [];
 }
 
 export async function getTeamForUser() {
@@ -110,27 +148,50 @@ export async function getTeamForUser() {
     return null;
   }
 
-  const db = getDb();
-  const result = await db.query.teamMembers.findFirst({
-    where: eq(teamMembers.userId, user.id),
-    with: {
-      team: {
-        with: {
-          teamMembers: {
-            with: {
-              user: {
-                columns: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  });
+  const supabase = getSupabaseClient();
 
-  return result?.team || null;
+  // Get team membership
+  const { data: teamMember, error: teamMemberError } = await supabase
+    .from('team_members')
+    .select('team_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .single();
+
+  if (teamMemberError || !teamMember) {
+    return null;
+  }
+
+  // Get team with all members
+  const { data: team, error: teamError } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('id', teamMember.team_id)
+    .single();
+
+  if (teamError || !team) {
+    return null;
+  }
+
+  // Get all team members with user info
+  const { data: allMembers, error: membersError } = await supabase
+    .from('team_members')
+    .select(`
+      *,
+      users (
+        id,
+        name,
+        email
+      )
+    `)
+    .eq('team_id', teamMember.team_id);
+
+  if (membersError) {
+    return team;
+  }
+
+  return {
+    ...team,
+    teamMembers: allMembers
+  };
 }

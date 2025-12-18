@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/drizzle';
-import { users, profiles, orders, addresses, customerNotes } from '@/lib/db/schema';
-import { eq, desc, sql } from 'drizzle-orm';
+import { getSupabaseClient } from '@/lib/db/supabase';
 
 /**
  * GET /api/admin/customers/[id]
@@ -14,74 +12,77 @@ export async function GET(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
     // Fetch customer with profile
-    const customerData = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        createdAt: users.createdAt,
-        phone: profiles.phone,
-        dateOfBirth: profiles.dateOfBirth,
-        ageVerified: profiles.ageVerified,
-        marketingConsent: profiles.marketingConsent,
-      })
-      .from(users)
-      .leftJoin(profiles, eq(users.id, profiles.userId))
-      .where(eq(users.id, customerId))
-      .limit(1);
+    const { data: customer, error: customerError } = await supabase
+      .from('users')
+      .select(`
+        id,
+        name,
+        email,
+        role,
+        created_at,
+        profiles (
+          phone,
+          date_of_birth,
+          age_verified,
+          marketing_consent
+        )
+      `)
+      .eq('id', customerId)
+      .single();
 
-    if (!customerData.length) {
+    if (customerError || !customer) {
       return NextResponse.json(
         { success: false, error: 'Customer not found' },
         { status: 404 }
       );
     }
 
-    const customer = customerData[0];
+    // Fetch orders for statistics
+    const { data: orders } = await supabase
+      .from('orders')
+      .select('id, total, created_at')
+      .eq('user_id', customerId);
 
-    // Fetch order statistics
-    const orderStats = await db
-      .select({
-        ordersCount: sql<number>`CAST(COUNT(*) AS INTEGER)`,
-        totalSpent: sql<string>`COALESCE(SUM(${orders.total}), 0)`,
-        lastOrderDate: sql<Date>`MAX(${orders.createdAt})`,
-      })
-      .from(orders)
-      .where(eq(orders.userId, customerId));
+    const ordersCount = orders?.length || 0;
+    const totalSpent = orders?.reduce((sum, order) => {
+      return sum + parseFloat(order.total || '0');
+    }, 0) || 0;
 
-    const stats = orderStats[0];
+    const lastOrderDate = orders && orders.length > 0
+      ? orders.sort((a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0].created_at
+      : null;
+
+    const avgOrderValue = ordersCount > 0 ? totalSpent / ordersCount : 0;
 
     // Fetch customer addresses
-    const customerAddresses = await db
-      .select()
-      .from(addresses)
-      .where(eq(addresses.userId, customerId))
-      .orderBy(desc(addresses.isDefaultShipping));
+    const { data: addresses } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('user_id', customerId)
+      .order('is_default_shipping', { ascending: false });
 
     // Fetch customer notes
-    const notes = await db
-      .select({
-        id: customerNotes.id,
-        note: customerNotes.note,
-        createdAt: customerNotes.createdAt,
-        createdBy: customerNotes.createdBy,
-        createdByName: users.name,
-        createdByEmail: users.email,
-      })
-      .from(customerNotes)
-      .leftJoin(users, eq(customerNotes.createdBy, users.id))
-      .where(eq(customerNotes.userId, customerId))
-      .orderBy(desc(customerNotes.createdAt));
+    const { data: notes } = await supabase
+      .from('customer_notes')
+      .select(`
+        id,
+        note,
+        created_at,
+        created_by,
+        users (
+          name,
+          email
+        )
+      `)
+      .eq('user_id', customerId)
+      .order('created_at', { ascending: false });
 
-    // Calculate average order value
-    const avgOrderValue =
-      stats.ordersCount > 0
-        ? parseFloat(stats.totalSpent) / stats.ordersCount
-        : 0;
+    const profile = Array.isArray(customer.profiles) ? customer.profiles[0] : customer.profiles;
 
     return NextResponse.json({
       success: true,
@@ -89,25 +90,25 @@ export async function GET(
         id: customer.id.toString(),
         name: customer.name || 'Guest',
         email: customer.email,
-        phone: customer.phone,
-        dateOfBirth: customer.dateOfBirth,
-        ageVerified: customer.ageVerified,
-        marketingConsent: customer.marketingConsent,
-        joinedDate: customer.createdAt,
+        phone: profile?.phone || null,
+        dateOfBirth: profile?.date_of_birth || null,
+        ageVerified: profile?.age_verified || false,
+        marketingConsent: profile?.marketing_consent || false,
+        joinedDate: customer.created_at,
         isGuest: !customer.name || customer.role === 'guest',
-        ordersCount: stats.ordersCount,
-        totalSpent: parseFloat(stats.totalSpent),
+        ordersCount,
+        totalSpent,
         averageOrderValue: avgOrderValue,
-        lastOrderDate: stats.lastOrderDate,
-        addresses: customerAddresses,
-        notes: notes.map((note) => ({
+        lastOrderDate,
+        addresses: addresses || [],
+        notes: (notes || []).map((note: any) => ({
           id: note.id,
           note: note.note,
-          createdAt: note.createdAt,
+          createdAt: note.created_at,
           createdBy: {
-            id: note.createdBy,
-            name: note.createdByName,
-            email: note.createdByEmail,
+            id: note.created_by,
+            name: note.users?.name || null,
+            email: note.users?.email || null,
           },
         })),
       },
@@ -135,13 +136,24 @@ export async function DELETE(
   try {
     const { id } = await params;
     const customerId = parseInt(id);
-    const db = getDb();
+    const supabase = getSupabaseClient();
 
-    // Soft delete by setting deletedAt timestamp
-    await db
-      .update(users)
-      .set({ deletedAt: new Date() })
-      .where(eq(users.id, customerId));
+    // Soft delete by setting deleted_at timestamp
+    const { error } = await supabase
+      .from('users')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', customerId);
+
+    if (error) {
+      console.error('Error deleting customer:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to delete customer',
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
